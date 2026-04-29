@@ -138,7 +138,7 @@ class GeoLookup
     {
         if (str_contains($ip, ':')) return null; // IPv6 doesn't fit in BIGINT
         $long = ip2long($ip);
-        return $long === false ? null : $long < 0 ? $long + 4294967296 : $long;
+        return $long === false ? null : ($long < 0 ? $long + 4294967296 : $long);
     }
 
     private static function isPrivate(string $ip): bool
