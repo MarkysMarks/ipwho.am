@@ -1,31 +1,29 @@
 <?php
-// ── ipwho.am configuration ─────────────────────────────────────────────────
-// Copy this file to config.local.php and override values there for production.
-// config.local.php is in .gitignore and never committed.
+// ── ipwho.am — Konfiguration ───────────────────────────────────────────────
+// Trage hier deine Datenbankzugangsdaten ein. Fertig.
 
 return [
+
     'db' => [
-        'host'    => getenv('DB_HOST')     ?: 'db',
-        'port'    => getenv('DB_PORT')     ?: 3306,
-        'name'    => getenv('DB_NAME')     ?: 'ipwhoam',
-        'user'    => getenv('DB_USER')     ?: 'ipwhoam',
-        'pass'    => getenv('DB_PASS')     ?: 'changeme',
+        'host'    => 'localhost',          // DB-Host, fast immer localhost
+        'port'    => 3306,
+        'name'    => 'ipwhoam',            // Datenbankname
+        'user'    => 'ipwhoam',            // DB-Benutzername
+        'pass'    => 'DEIN_PASSWORT_HIER', // DB-Passwort
         'charset' => 'utf8mb4',
     ],
 
-    // How long to cache geo lookups in DB (seconds)
-    'geo_cache_ttl' => 86400 * 7, // 7 days
+    // Wie lange Geo-Lookups in der DB gecacht werden (Sekunden)
+    'geo_cache_ttl' => 86400 * 7, // 7 Tage
 
-    // Rate-limit: max requests per IP per minute (0 = disabled)
-    'rate_limit' => 60,
+    // Deine Domain (wird in HTML/JSON-Antworten genutzt)
+    'hostname' => 'ipwho.am',
 
-    // The canonical hostname (used in HTML / JSON responses)
-    'hostname' => getenv('APP_HOST') ?: 'ipwho.am',
-
-    // GitHub repository URL
+    // GitHub Repository URL
     'github_url' => 'https://github.com/MarkysMarks/ipwho.am',
 
-    // Geo API backend — ipapi.co (free: 30k/month, no key needed)
-    'geo_api_url' => 'https://ipapi.co/{ip}/json/',
-    'geo_api_timeout' => 3, // seconds
+    // Geo-API (ipapi.co — kostenlos bis 30k Anfragen/Monat, kein Key nötig)
+    'geo_api_url'     => 'https://ipapi.co/{ip}/json/',
+    'geo_api_timeout' => 4,
+
 ];
