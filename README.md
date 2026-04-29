@@ -63,8 +63,8 @@ SQL
 mysql -u ipwhoam -p ipwhoam < /var/www/ipwhoam/schema.sql
 
 # 4. Configure
-cp /var/www/ipwhoam/config.php /var/www/ipwhoam/config.local.php
-# Edit config.local.php — set db.host, db.user, db.pass, hostname
+nano /var/www/ipwhoam/config.php
+# Set db.host, db.user, db.pass and hostname — that's it
 
 # 5. Apache vhost
 cat > /etc/apache2/sites-available/ipwhoam.conf << 'CONF'
