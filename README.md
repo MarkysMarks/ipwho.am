@@ -7,6 +7,8 @@
 ![License](https://img.shields.io/badge/license-MIT-00cc66?style=flat-square&labelColor=060c06)
 ![No deps](https://img.shields.io/badge/dependencies-none-ff6b35?style=flat-square&labelColor=060c06)
 
+![ipwho.am screenshot](screenshot.png)
+
 ---
 
 ## ✨ Features
@@ -30,7 +32,7 @@
 
 ```bash
 # Just download and open — no server needed
-curl -O https://raw.githubusercontent.com/YOUR_USERNAME/ipwho.am/main/index.html
+curl -O https://raw.githubusercontent.com/MarkysMarks/ipwho.am/main/index.html
 open index.html          # macOS
 xdg-open index.html      # Linux
 start index.html         # Windows
@@ -44,7 +46,7 @@ start index.html         # Windows
 ### Option B — Serve locally with Python
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ipwho.am.git
+git clone https://github.com/MarkysMarks/ipwho.am.git
 cd ipwho.am
 python3 -m http.server 8080
 # → open http://localhost:8080
@@ -98,14 +100,6 @@ const res = await fetch('https://ipapi.co/json/');
 const res = await fetch('/api/ip');
 ```
 
-You can build a simple backend with any language. Example with Node.js + [echoip](https://github.com/mpolden/echoip):
-
-```bash
-git clone https://github.com/mpolden/echoip.git
-cd echoip
-go build && ./echoip -l :8080
-```
-
 ---
 
 ## 📁 Project Structure
@@ -113,6 +107,7 @@ go build && ./echoip -l :8080
 ```
 ipwho.am/
 ├── index.html     # Everything — HTML, CSS, JS in one file
+├── screenshot.png # Preview image
 └── README.md      # This file
 ```
 
@@ -156,7 +151,7 @@ For higher traffic, swap in any alternative: `ip-api.com`, `ipinfo.io`, `abstrac
 
 ## 🛠️ Customization
 
-All styles are CSS variables at the top of `index.html` — change the color scheme in one place:
+All styles are CSS variables at the top of `index.html`:
 
 ```css
 :root {
@@ -166,8 +161,6 @@ All styles are CSS variables at the top of `index.html` — change the color sch
   --bg:    #060c06;   /* background */
 }
 ```
-
-To change the site name, search for `ipwho.am` and replace it with your domain.
 
 ---
 
