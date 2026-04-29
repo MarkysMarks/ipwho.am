@@ -11,7 +11,9 @@ if (file_exists(__DIR__ . '/config.local.php')) {
 require __DIR__ . '/lib/DB.php';
 DB::init($cfg['db']);
 
-$dbOk = DB::ping() === true;
+$dbPing = DB::ping();
+$dbOk  = $dbPing === true;
+$dbErr = $dbOk ? '' : $dbPing;
 $hostname = $cfg['hostname'];
 $github   = $cfg['github_url'];
 ?>
@@ -127,7 +129,8 @@ footer a:hover{color:var(--green)}
 <?php if (!$dbOk): ?>
 <div class="db-error">
   <strong>⚠ Datenbankverbindung fehlgeschlagen</strong>
-  Statistiken können momentan nicht geladen werden. Bitte prüfe die DB-Konfiguration.
+  <?= htmlspecialchars($dbErr) ?><br>
+  <small style="opacity:.7">Prüfe config.php → db.host / db.user / db.pass / db.name</small>
 </div>
 <?php endif; ?>
 
