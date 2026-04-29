@@ -14,13 +14,14 @@ class DB
     {
         if (self::$pdo !== null) return self::$pdo;
 
-        $c = self::$cfg;
+        $c   = self::$cfg;
         $dsn = "mysql:host={$c['host']};port={$c['port']};dbname={$c['name']};charset={$c['charset']}";
 
         self::$pdo = new PDO($dsn, $c['user'], $c['pass'], [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_TIMEOUT            => 5,
         ]);
 
         return self::$pdo;
@@ -50,7 +51,7 @@ class DB
         return $row ? $row[0] : null;
     }
 
-    /** Test connection, return true or error string */
+    /** Returns true on success, or the error message string on failure */
     public static function ping(): bool|string
     {
         try {
