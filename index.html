@@ -5,553 +5,111 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ipwho.am — What is my IP?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --green: #00ff88;
-    --green-dim: #00cc66;
-    --green-dark: #007a3d;
-    --green-faint: #003320;
-    --orange: #ff6b35;
-    --cyan: #00e5ff;
-    --amber: #ffb300;
-    --bg: #060c06;
-    --bg2: #0a110a;
-    --bg3: #0e180e;
-    --border: #0f2a0f;
-    --border2: #163a16;
-    --text: #c8f0d4;
-    --text-dim: #5a8a65;
-    --text-faint: #2a4a30;
+    --green: #00ff88;--green-dim: #00cc66;--green-dark: #007a3d;--green-faint: #003320;
+    --orange: #ff6b35;--cyan: #00e5ff;--amber: #ffb300;
+    --bg: #060c06;--bg2: #0a110a;--bg3: #0e180e;
+    --border: #0f2a0f;--border2: #163a16;
+    --text: #c8f0d4;--text-dim: #5a8a65;--text-faint: #2a4a30;
   }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { font-size: 14px; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative;
-  }
-
-  /* CRT scanlines */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.08) 2px,
-      rgba(0,0,0,0.08) 4px
-    );
-    pointer-events: none;
-    z-index: 1000;
-  }
-
-  /* CRT vignette */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.7) 100%);
-    pointer-events: none;
-    z-index: 999;
-  }
-
-  /* Phosphor glow on text */
-  .glow { text-shadow: 0 0 10px var(--green), 0 0 20px rgba(0,255,136,0.4); }
-  .glow-sm { text-shadow: 0 0 6px rgba(0,255,136,0.6); }
-  .glow-orange { text-shadow: 0 0 10px var(--orange), 0 0 20px rgba(255,107,53,0.4); }
-  .glow-cyan { text-shadow: 0 0 10px var(--cyan), 0 0 20px rgba(0,229,255,0.4); }
-
-  .wrapper {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-    position: relative;
-  }
-
-  /* ---- HEADER ---- */
-  .ascii-header {
-    color: var(--green-dark);
-    font-size: 0.55rem;
-    line-height: 1.1;
-    letter-spacing: 0;
-    white-space: pre;
-    margin-bottom: 1.5rem;
-    animation: fadeInUp 0.8s ease both;
-  }
-
-  .top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border2);
-    padding-bottom: 0.75rem;
-    margin-bottom: 2.5rem;
-    animation: fadeInUp 0.5s ease both;
-  }
-
-  .top-bar-left { display: flex; align-items: center; gap: 0.75rem; }
-
-  .traffic-lights { display: flex; gap: 6px; }
-  .dot {
-    width: 12px; height: 12px; border-radius: 50%;
-    animation: pulse-dot 3s ease-in-out infinite;
-  }
-  .dot-red   { background: #ff5f57; animation-delay: 0s; }
-  .dot-amber { background: #febc2e; animation-delay: 0.2s; }
-  .dot-green { background: #28c840; animation-delay: 0.4s; }
-
-  @keyframes pulse-dot {
-    0%, 90%, 100% { opacity: 1; }
-    95% { opacity: 0.5; }
-  }
-
-  .site-title {
-    color: var(--green);
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-  }
-
-  .site-title span { color: var(--orange); }
-
-  .status-badge {
-    font-size: 0.65rem;
-    color: var(--green-dim);
-    border: 1px solid var(--border2);
-    padding: 2px 10px;
-    border-radius: 2px;
-    letter-spacing: 0.1em;
-  }
-
-  .status-badge::before {
-    content: '● ';
-    color: #28c840;
-    animation: blink 1.5s step-start infinite;
-  }
-
-  @keyframes blink { 50% { opacity: 0; } }
-
-  /* ---- HERO IP SECTION ---- */
-  .hero {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-top: 2px solid var(--green-dark);
-    border-radius: 4px;
-    padding: 2rem 2.5rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
-    animation: fadeInUp 0.6s ease 0.1s both;
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--green), var(--cyan), var(--green), transparent);
-    animation: scanline-h 4s linear infinite;
-    opacity: 0.6;
-  }
-
-  @keyframes scanline-h {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-  }
-
-  .hero-label {
-    font-size: 0.65rem;
-    color: var(--text-dim);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
-
-  .hero-label::before { content: '$ '; color: var(--green); }
-
-  .ip-display {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 700;
-    color: var(--green);
-    letter-spacing: 0.05em;
-    line-height: 1;
-    margin-bottom: 1rem;
-    min-height: 1.2em;
-    position: relative;
-  }
-
-  .ip-display.glitch { animation: glitch 0.15s linear; }
-
-  @keyframes glitch {
-    0%   { transform: translate(0); }
-    20%  { transform: translate(-3px, 1px); color: var(--cyan); }
-    40%  { transform: translate(3px, -1px); color: var(--orange); }
-    60%  { transform: translate(-1px, 2px); }
-    80%  { transform: translate(2px, -2px); color: var(--green); }
-    100% { transform: translate(0); }
-  }
-
-  .cursor {
-    display: inline-block;
-    width: 0.55em;
-    height: 0.9em;
-    background: var(--green);
-    vertical-align: middle;
-    animation: blink 1s step-start infinite;
-    margin-left: 4px;
-    border-radius: 1px;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .cursor.visible { opacity: 1; }
-
-  .hero-meta {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .meta-tag {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.8rem;
-  }
-
-  .meta-tag .label { color: var(--text-dim); }
-  .meta-tag .val { color: var(--cyan); }
-
-  .copy-btn {
-    margin-left: auto;
-    background: transparent;
-    border: 1px solid var(--border2);
-    color: var(--green-dim);
-    font-family: inherit;
-    font-size: 0.7rem;
-    padding: 6px 14px;
-    cursor: pointer;
-    letter-spacing: 0.1em;
-    border-radius: 2px;
-    transition: all 0.2s;
-    text-transform: uppercase;
-  }
-
-  .copy-btn:hover {
-    border-color: var(--green);
-    color: var(--green);
-    box-shadow: 0 0 10px rgba(0,255,136,0.2);
-  }
-
-  .copy-btn.copied {
-    border-color: var(--amber);
-    color: var(--amber);
-  }
-
-  /* ---- DATA GRID ---- */
-  .sections-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 2rem;
-  }
-
-  @media (max-width: 600px) {
-    .sections-grid { grid-template-columns: 1fr; }
-    .hero { padding: 1.25rem; }
-  }
-
-  .section-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    animation: fadeInUp 0.6s ease both;
-  }
-
-  .section-card:nth-child(1) { animation-delay: 0.2s; }
-  .section-card:nth-child(2) { animation-delay: 0.3s; }
-  .section-card:nth-child(3) { animation-delay: 0.4s; }
-  .section-card:nth-child(4) { animation-delay: 0.5s; }
-
-  .card-header {
-    background: var(--bg3);
-    border-bottom: 1px solid var(--border);
-    padding: 0.5rem 1rem;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .card-header .icon { color: var(--green-dim); font-size: 0.8rem; }
-
-  .data-table { width: 100%; border-collapse: collapse; }
-
-  .data-table tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-  .data-table tr:last-child { border-bottom: none; }
-  .data-table tr:hover { background: var(--green-faint); }
-
-  .data-table td {
-    padding: 0.55rem 1rem;
-    font-size: 0.75rem;
-    vertical-align: middle;
-  }
-
-  .data-table .key {
-    color: var(--text-dim);
-    width: 45%;
-    white-space: nowrap;
-    padding-right: 0.5rem;
-  }
-
-  .data-table .key::before { content: '─ '; color: var(--text-faint); }
-
-  .data-table .val { color: var(--text); font-weight: 500; word-break: break-all; }
-
-  .data-table .val.highlight { color: var(--cyan); }
-  .data-table .val.highlight-orange { color: var(--orange); }
-  .data-table .val.highlight-amber { color: var(--amber); }
-  .data-table .val.loading {
-    color: var(--text-faint);
-    font-style: italic;
-  }
-  .data-table .val.loading::after {
-    content: '...';
-    animation: ellipsis 1.5s step-start infinite;
-  }
-  @keyframes ellipsis {
-    0%   { content: '.'; }
-    33%  { content: '..'; }
-    66%  { content: '...'; }
-    100% { content: ''; }
-  }
-
-  /* ---- TERMINAL SECTION ---- */
-  .terminal-section {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    margin-bottom: 2rem;
-    overflow: hidden;
-    animation: fadeInUp 0.6s ease 0.6s both;
-  }
-
-  .term-header {
-    background: var(--bg3);
-    border-bottom: 1px solid var(--border2);
-    padding: 0.6rem 1rem;
-    font-size: 0.65rem;
-    color: var(--text-dim);
-    letter-spacing: 0.15em;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .term-body { padding: 1.25rem 1.5rem; font-size: 0.78rem; line-height: 2; }
-
-  .term-line { display: flex; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap; }
-  .term-prompt { color: var(--green); flex-shrink: 0; }
-  .term-cmd { color: var(--text); }
-  .term-comment { color: var(--text-dim); }
-  .term-output { color: var(--cyan); padding-left: 1.2rem; word-break: break-all; }
-
-  .term-tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-  }
-
-  .tab-btn {
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--text-dim);
-    font-family: inherit;
-    font-size: 0.65rem;
-    letter-spacing: 0.15em;
-    padding: 0.6rem 1.2rem;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .tab-btn:hover { color: var(--text); background: var(--green-faint); }
-  .tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
-
-  .tab-content { display: none; padding: 1.25rem 1.5rem; font-size: 0.78rem; }
-  .tab-content.active { display: block; }
-
-  .endpoint-line {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.4rem 0;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-
-  .endpoint-line:last-child { border-bottom: none; }
-
-  .method { color: var(--amber); font-weight: 700; font-size: 0.65rem; letter-spacing: 0.1em; min-width: 35px; }
-  .endpoint { color: var(--cyan); flex: 1; min-width: 180px; }
-  .ep-desc { color: var(--text-dim); font-size: 0.7rem; }
-
-  /* ---- FAQ ---- */
-  .faq-section {
-    animation: fadeInUp 0.6s ease 0.7s both;
-  }
-
-  .faq-title {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .faq-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border2);
-  }
-
-  .faq-item {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    margin-bottom: 0.75rem;
-    overflow: hidden;
-  }
-
-  .faq-q {
-    padding: 0.9rem 1.2rem;
-    font-size: 0.8rem;
-    color: var(--green-dim);
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: background 0.15s;
-    user-select: none;
-    background: var(--bg2);
-  }
-
-  .faq-q:hover { background: var(--green-faint); }
-  .faq-q::before { content: '//'; color: var(--text-faint); margin-right: 0.6rem; }
-
-  .faq-arrow { color: var(--text-faint); transition: transform 0.2s; }
-  .faq-item.open .faq-arrow { transform: rotate(90deg); }
-
-  .faq-a {
-    display: none;
-    padding: 1rem 1.2rem 1rem 2.5rem;
-    font-size: 0.75rem;
-    color: var(--text-dim);
-    line-height: 1.8;
-    background: var(--bg);
-    border-top: 1px solid var(--border);
-  }
-
-  .faq-item.open .faq-a { display: block; }
-
-  .faq-a code {
-    background: var(--green-faint);
-    color: var(--green);
-    padding: 1px 6px;
-    border-radius: 2px;
-    font-family: inherit;
-    font-size: 0.85em;
-  }
-
-  /* ---- FOOTER ---- */
-  footer {
-    text-align: center;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border);
-    font-size: 0.65rem;
-    color: var(--text-faint);
-    letter-spacing: 0.1em;
-    animation: fadeInUp 0.6s ease 0.8s both;
-  }
-
-  footer span { color: var(--green-dark); }
-
-  /* ---- FLAG EMOJI DISPLAY ---- */
-  .flag { font-size: 1.1em; vertical-align: middle; margin-right: 0.2rem; }
-
-  /* ---- ANIMATIONS ---- */
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ---- TOOLTIP ---- */
-  .tooltip-wrap { position: relative; display: inline-block; }
-  .tooltip-wrap:hover .tooltip { opacity: 1; pointer-events: all; }
-  .tooltip {
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    font-size: 0.65rem;
-    padding: 4px 10px;
-    border-radius: 2px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s;
-    z-index: 50;
-  }
-
-  /* ---- TYPEWRITER ---- */
-  .typewriter {
-    overflow: hidden;
-    white-space: nowrap;
-    animation: typing 0.6s steps(20) both;
-  }
-
-  @keyframes typing {
-    from { width: 0; }
-    to   { width: 100%; }
-  }
-
-  /* ── NETWORK BARS ── */
-  .bar-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 1rem; border-bottom: 1px solid var(--border); }
-  .bar-row:last-child { border-bottom: none; }
-  .bar-label { color: var(--text-dim); font-size: 0.7rem; width: 90px; flex-shrink: 0; }
-  .bar-label::before { content: '─ '; color: var(--text-faint); }
-  .bar-track { flex: 1; height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
-  .bar-fill { height: 100%; background: var(--green); border-radius: 2px; width: 0; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
-  .bar-val { color: var(--cyan); font-size: 0.7rem; min-width: 50px; text-align: right; }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);pointer-events:none;z-index:1000}
+  body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,0.7) 100%);pointer-events:none;z-index:999}
+  .glow{text-shadow:0 0 10px var(--green),0 0 20px rgba(0,255,136,0.4)}
+  .wrapper{max-width:900px;margin:0 auto;padding:2rem 1.5rem 4rem;position:relative}
+  .ascii-header{color:var(--green-dark);font-size:.55rem;line-height:1.1;white-space:pre;margin-bottom:1.5rem;animation:fadeInUp .8s ease both}
+  .top-bar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border2);padding-bottom:.75rem;margin-bottom:2.5rem;animation:fadeInUp .5s ease both;flex-wrap:wrap;gap:.5rem}
+  .top-bar-left{display:flex;align-items:center;gap:.75rem}
+  .top-bar-right{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+  .traffic-lights{display:flex;gap:6px}
+  .dot{width:12px;height:12px;border-radius:50%}
+  .dot-red{background:#ff5f57}.dot-amber{background:#febc2e}.dot-green{background:#28c840}
+  .site-title{color:var(--green);font-size:1rem;font-weight:700;letter-spacing:.05em}
+  .site-title span{color:var(--orange)}
+  .nav-link{font-size:.65rem;color:var(--text-dim);border:1px solid var(--border2);padding:2px 10px;border-radius:2px;letter-spacing:.1em;text-decoration:none;transition:all .2s}
+  .nav-link:hover{color:var(--green);border-color:var(--green-dark)}
+  .nav-link.stats-link{color:var(--cyan);border-color:#0a2a35}
+  .nav-link.stats-link:hover{border-color:var(--cyan)}
+  .status-badge{font-size:.65rem;color:var(--green-dim);border:1px solid var(--border2);padding:2px 10px;border-radius:2px;letter-spacing:.1em}
+  .status-badge::before{content:'● ';color:#28c840;animation:blink 1.5s step-start infinite}
+  @keyframes blink{50%{opacity:0}}
+  .hero{background:var(--bg2);border:1px solid var(--border2);border-top:2px solid var(--green-dark);border-radius:4px;padding:2rem 2.5rem;margin-bottom:2rem;position:relative;overflow:hidden;animation:fadeInUp .6s ease .1s both}
+  .hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),var(--cyan),var(--green),transparent);animation:scanline-h 4s linear infinite;opacity:.6}
+  @keyframes scanline-h{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  .hero-label{font-size:.65rem;color:var(--text-dim);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.5rem}
+  .hero-label::before{content:'$ ';color:var(--green)}
+  .ip-display{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:var(--green);letter-spacing:.05em;line-height:1;margin-bottom:1rem;min-height:1.2em}
+  .ip-display.glitch{animation:glitch .15s linear}
+  @keyframes glitch{0%{transform:translate(0)}20%{transform:translate(-3px,1px);color:var(--cyan)}40%{transform:translate(3px,-1px);color:var(--orange)}60%{transform:translate(-1px,2px)}80%{transform:translate(2px,-2px);color:var(--green)}100%{transform:translate(0)}}
+  .cursor{display:inline-block;width:.55em;height:.9em;background:var(--green);vertical-align:middle;animation:blink 1s step-start infinite;margin-left:4px;border-radius:1px;opacity:0;transition:opacity .3s}
+  .cursor.visible{opacity:1}
+  .hero-meta{display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap}
+  .meta-tag{display:flex;align-items:center;gap:.4rem;font-size:.8rem}
+  .meta-tag .label{color:var(--text-dim)}.meta-tag .val{color:var(--cyan)}
+  .copy-btn{margin-left:auto;background:transparent;border:1px solid var(--border2);color:var(--green-dim);font-family:inherit;font-size:.7rem;padding:6px 14px;cursor:pointer;letter-spacing:.1em;border-radius:2px;transition:all .2s;text-transform:uppercase}
+  .copy-btn:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 10px rgba(0,255,136,.2)}
+  .copy-btn.copied{border-color:var(--amber);color:var(--amber)}
+  .sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+  @media(max-width:600px){.sections-grid{grid-template-columns:1fr}.hero{padding:1.25rem}}
+  .section-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeInUp .6s ease both}
+  .section-card:nth-child(1){animation-delay:.2s}.section-card:nth-child(2){animation-delay:.3s}.section-card:nth-child(3){animation-delay:.4s}.section-card:nth-child(4){animation-delay:.5s}
+  .card-header{background:var(--bg3);border-bottom:1px solid var(--border);padding:.5rem 1rem;font-size:.65rem;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+  .data-table{width:100%;border-collapse:collapse}
+  .data-table tr{border-bottom:1px solid var(--border);transition:background .15s}
+  .data-table tr:last-child{border-bottom:none}
+  .data-table tr:hover{background:var(--green-faint)}
+  .data-table td{padding:.55rem 1rem;font-size:.75rem;vertical-align:middle}
+  .data-table .key{color:var(--text-dim);width:45%;padding-right:.5rem;white-space:nowrap}
+  .data-table .key::before{content:'─ ';color:var(--text-faint)}
+  .data-table .val{color:var(--text);font-weight:500;word-break:break-all}
+  .data-table .val.highlight{color:var(--cyan)}.data-table .val.highlight-orange{color:var(--orange)}.data-table .val.highlight-amber{color:var(--amber)}
+  .data-table .val.loading{color:var(--text-faint);font-style:italic}
+  .data-table .val.loading::after{content:'...';animation:ellipsis 1.5s step-start infinite}
+  @keyframes ellipsis{0%{content:'.'}33%{content:'..'}66%{content:'...'}100%{content:''}}
+  .terminal-section{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;margin-bottom:2rem;overflow:hidden;animation:fadeInUp .6s ease .6s both}
+  .term-header{background:var(--bg3);border-bottom:1px solid var(--border2);padding:.6rem 1rem;font-size:.65rem;color:var(--text-dim);letter-spacing:.15em;display:flex;align-items:center;gap:.5rem}
+  .term-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);overflow-x:auto}
+  .tab-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);font-family:inherit;font-size:.65rem;letter-spacing:.15em;padding:.6rem 1.2rem;cursor:pointer;text-transform:uppercase;transition:all .2s;white-space:nowrap}
+  .tab-btn:hover{color:var(--text);background:var(--green-faint)}.tab-btn.active{color:var(--green);border-bottom-color:var(--green)}
+  .tab-content{display:none;padding:1.25rem 1.5rem;font-size:.78rem}.tab-content.active{display:block}
+  .term-line{display:flex;align-items:flex-start;gap:.5rem;flex-wrap:wrap}
+  .term-prompt{color:var(--green);flex-shrink:0}.term-cmd{color:var(--text)}.term-comment{color:var(--text-dim)}
+  .term-output{color:var(--cyan);padding-left:1.2rem;word-break:break-all}
+  .endpoint-line{display:flex;align-items:center;gap:.75rem;padding:.4rem 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .endpoint-line:last-child{border-bottom:none}
+  .method{color:var(--amber);font-weight:700;font-size:.65rem;letter-spacing:.1em;min-width:35px}
+  .endpoint{color:var(--cyan);flex:1;min-width:180px}.ep-desc{color:var(--text-dim);font-size:.7rem}
+  .privacy-section{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green-dark);border-radius:4px;padding:1.5rem;margin-bottom:2rem;animation:fadeInUp .6s ease .65s both}
+  .privacy-title{font-size:.65rem;letter-spacing:.2em;color:var(--green-dim);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+  .privacy-title::before{content:'🔒';font-size:.9rem}
+  .privacy-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  @media(max-width:600px){.privacy-grid{grid-template-columns:1fr}}
+  .privacy-item{padding:.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:2px}
+  .privacy-item-title{font-size:.65rem;color:var(--text-dim);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem}
+  .privacy-item-body{font-size:.72rem;color:var(--text-dim);line-height:1.7}
+  .privacy-item-body a{color:var(--green-dim);text-decoration:none}.privacy-item-body a:hover{color:var(--green)}
+  .faq-section{animation:fadeInUp .6s ease .7s both}
+  .faq-title{font-size:.65rem;letter-spacing:.2em;color:var(--text-dim);text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem}
+  .faq-title::after{content:'';flex:1;height:1px;background:var(--border2)}
+  .faq-item{border:1px solid var(--border);border-radius:4px;margin-bottom:.75rem;overflow:hidden}
+  .faq-q{padding:.9rem 1.2rem;font-size:.8rem;color:var(--green-dim);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .15s;user-select:none;background:var(--bg2)}
+  .faq-q:hover{background:var(--green-faint)}.faq-q::before{content:'//';color:var(--text-faint);margin-right:.6rem}
+  .faq-arrow{color:var(--text-faint);transition:transform .2s}.faq-item.open .faq-arrow{transform:rotate(90deg)}
+  .faq-a{display:none;padding:1rem 1.2rem 1rem 2.5rem;font-size:.75rem;color:var(--text-dim);line-height:1.8;background:var(--bg);border-top:1px solid var(--border)}
+  .faq-item.open .faq-a{display:block}
+  .faq-a code{background:var(--green-faint);color:var(--green);padding:1px 6px;border-radius:2px;font-family:inherit;font-size:.85em}
+  footer{text-align:center;padding-top:2rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-faint);letter-spacing:.1em;animation:fadeInUp .6s ease .8s both}
+  footer span{color:var(--green-dark)}
+  footer a{color:var(--text-dim);text-decoration:none;transition:color .2s}
+  footer a:hover{color:var(--green)}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
-
 <div class="wrapper">
-
-  <!-- ASCII ART HEADER -->
   <pre class="ascii-header" aria-hidden="true">
  ██╗██████╗ ██╗    ██╗██╗  ██╗ ██████╗      █████╗ ███╗   ███╗
  ██║██╔══██╗██║    ██║██║  ██║██╔═══██╗    ██╔══██╗████╗ ████║
@@ -560,48 +118,37 @@
  ██║██║     ╚███╔███╔╝██║  ██║╚██████╔╝    ██║  ██║██║ ╚═╝ ██║
  ╚═╝╚═╝      ╚══╝╚══╝ ╚═╝  ╚═╝ ╚═════╝     ╚═╝  ╚═╝╚═╝     ╚═╝</pre>
 
-  <!-- TOP BAR -->
   <div class="top-bar">
     <div class="top-bar-left">
       <div class="traffic-lights">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-amber"></div>
-        <div class="dot dot-green"></div>
+        <div class="dot dot-red"></div><div class="dot dot-amber"></div><div class="dot dot-green"></div>
       </div>
       <span class="site-title">ipwho<span>.am</span></span>
     </div>
-    <div class="status-badge">ONLINE</div>
+    <div class="top-bar-right">
+      <a href="stats.html" class="nav-link stats-link">[ 📊 stats ]</a>
+      <a href="datenschutz.html" class="nav-link">[ 🔒 datenschutz ]</a>
+      <a href="https://github.com/MarkysMarks/ipwho.am" target="_blank" class="nav-link">[ ⌥ github ]</a>
+      <div class="status-badge">ONLINE</div>
+    </div>
   </div>
 
-  <!-- HERO IP -->
   <div class="hero">
     <div class="hero-label">curl ipwho.am</div>
     <div class="ip-display glow" id="ip-main">
       <span id="ip-text">──────────────</span><span class="cursor visible" id="cursor"></span>
     </div>
     <div class="hero-meta" id="hero-meta">
-      <div class="meta-tag">
-        <span class="label">protocol</span>
-        <span class="val" id="proto">─</span>
-      </div>
-      <div class="meta-tag">
-        <span class="label">country</span>
-        <span class="val" id="hero-country">─</span>
-      </div>
-      <div class="meta-tag">
-        <span class="label">org</span>
-        <span class="val" id="hero-org">─</span>
-      </div>
+      <div class="meta-tag"><span class="label">protocol</span><span class="val" id="proto">─</span></div>
+      <div class="meta-tag"><span class="label">country</span><span class="val" id="hero-country">─</span></div>
+      <div class="meta-tag"><span class="label">org</span><span class="val" id="hero-org">─</span></div>
       <button class="copy-btn" id="copy-btn" onclick="copyIP()">[ copy ]</button>
     </div>
   </div>
 
-  <!-- DATA GRID -->
   <div class="sections-grid">
-
-    <!-- GEO CARD -->
     <div class="section-card">
-      <div class="card-header"><span class="icon">◈</span> GEO / LOCATION</div>
+      <div class="card-header"><span>◈</span> GEO / LOCATION</div>
       <table class="data-table">
         <tr><td class="key">country</td><td class="val highlight" id="d-country"><span class="loading">resolving</span></td></tr>
         <tr><td class="key">country code</td><td class="val" id="d-country-code"><span class="loading">resolving</span></td></tr>
@@ -614,10 +161,8 @@
         <tr><td class="key">in EU?</td><td class="val" id="d-eu"><span class="loading">resolving</span></td></tr>
       </table>
     </div>
-
-    <!-- NETWORK CARD -->
     <div class="section-card">
-      <div class="card-header"><span class="icon">◈</span> NETWORK / ASN</div>
+      <div class="card-header"><span>◈</span> NETWORK / ASN</div>
       <table class="data-table">
         <tr><td class="key">ip address</td><td class="val highlight" id="d-ip"><span class="loading">resolving</span></td></tr>
         <tr><td class="key">ip decimal</td><td class="val" id="d-ipdec"><span class="loading">resolving</span></td></tr>
@@ -628,12 +173,10 @@
         <tr><td class="key">ISP</td><td class="val" id="d-isp"><span class="loading">resolving</span></td></tr>
       </table>
     </div>
-
-    <!-- BROWSER CARD -->
     <div class="section-card">
-      <div class="card-header"><span class="icon">◈</span> CLIENT / BROWSER</div>
+      <div class="card-header"><span>◈</span> CLIENT / BROWSER</div>
       <table class="data-table">
-        <tr><td class="key">user agent</td><td class="val" id="d-ua" style="font-size:0.65rem;word-break:break-word;"></td></tr>
+        <tr><td class="key">user agent</td><td class="val" id="d-ua" style="font-size:.65rem;word-break:break-word"></td></tr>
         <tr><td class="key">language</td><td class="val" id="d-lang"></td></tr>
         <tr><td class="key">platform</td><td class="val" id="d-platform"></td></tr>
         <tr><td class="key">screen</td><td class="val" id="d-screen"></td></tr>
@@ -642,10 +185,8 @@
         <tr><td class="key">java</td><td class="val" id="d-java"></td></tr>
       </table>
     </div>
-
-    <!-- TIME / CONNECTION CARD -->
     <div class="section-card">
-      <div class="card-header"><span class="icon">◈</span> TIME / STATUS</div>
+      <div class="card-header"><span>◈</span> TIME / STATUS</div>
       <table class="data-table">
         <tr><td class="key">local time</td><td class="val highlight" id="d-localtime"></td></tr>
         <tr><td class="key">utc time</td><td class="val" id="d-utctime"></td></tr>
@@ -656,315 +197,190 @@
         <tr><td class="key">touch points</td><td class="val" id="d-touch"></td></tr>
       </table>
     </div>
-
   </div>
 
-  <!-- TERMINAL API SECTION -->
   <div class="terminal-section">
-    <div class="term-header">
-      <span>◈</span> API &amp; USAGE
-    </div>
+    <div class="term-header"><span>◈</span> API &amp; USAGE</div>
     <div class="term-tabs">
-      <button class="tab-btn active" onclick="switchTab('curl', this)">curl</button>
-      <button class="tab-btn" onclick="switchTab('endpoints', this)">endpoints</button>
-      <button class="tab-btn" onclick="switchTab('formats', this)">formats</button>
+      <button class="tab-btn active" onclick="switchTab('curl',this)">curl</button>
+      <button class="tab-btn" onclick="switchTab('endpoints',this)">endpoints</button>
+      <button class="tab-btn" onclick="switchTab('formats',this)">formats</button>
     </div>
-
     <div class="tab-content active" id="tab-curl">
-      <div class="term-line">
-        <span class="term-prompt">$</span>
-        <span class="term-cmd">curl <span style="color:var(--cyan)">ipwho.am</span></span>
-        <span class="term-comment"># plain IP</span>
-      </div>
+      <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">curl <span style="color:var(--cyan)">ipwho.am</span></span><span class="term-comment"># plain IP</span></div>
       <div class="term-output" id="out-ip">──</div>
-      <div class="term-line" style="margin-top:0.5rem">
-        <span class="term-prompt">$</span>
-        <span class="term-cmd">curl <span style="color:var(--cyan)">ipwho.am/json</span></span>
-        <span class="term-comment"># full JSON</span>
-      </div>
-      <div class="term-output" id="out-json" style="color:var(--text-dim);font-size:0.7rem;white-space:pre-wrap;line-height:1.6">loading…</div>
-      <div class="term-line" style="margin-top:0.5rem">
-        <span class="term-prompt">$</span>
-        <span class="term-cmd">curl <span style="color:var(--cyan)">ipwho.am/country</span></span>
-        <span class="term-comment"># country only</span>
-      </div>
+      <div class="term-line" style="margin-top:.5rem"><span class="term-prompt">$</span><span class="term-cmd">curl <span style="color:var(--cyan)">ipwho.am/json</span></span><span class="term-comment"># full JSON</span></div>
+      <div class="term-output" id="out-json" style="color:var(--text-dim);font-size:.7rem;white-space:pre-wrap;line-height:1.6">loading…</div>
+      <div class="term-line" style="margin-top:.5rem"><span class="term-prompt">$</span><span class="term-cmd">curl <span style="color:var(--cyan)">ipwho.am/country</span></span><span class="term-comment"># country only</span></div>
       <div class="term-output" id="out-country">──</div>
     </div>
-
     <div class="tab-content" id="tab-endpoints">
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/</span>
-        <span class="ep-desc">plain text IP address</span>
-      </div>
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/json</span>
-        <span class="ep-desc">full info as JSON</span>
-      </div>
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/country</span>
-        <span class="ep-desc">country name</span>
-      </div>
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/country-iso</span>
-        <span class="ep-desc">ISO 3166 country code</span>
-      </div>
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/city</span>
-        <span class="ep-desc">city name</span>
-      </div>
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/asn</span>
-        <span class="ep-desc">ASN number</span>
-      </div>
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/port/:port</span>
-        <span class="ep-desc">check if port is reachable</span>
-      </div>
-      <div class="endpoint-line">
-        <span class="method">GET</span>
-        <span class="endpoint">/:ip/json</span>
-        <span class="ep-desc">lookup a different IP</span>
-      </div>
+      <div class="endpoint-line"><span class="method">GET</span><span class="endpoint">/</span><span class="ep-desc">plain text IP address</span></div>
+      <div class="endpoint-line"><span class="method">GET</span><span class="endpoint">/json</span><span class="ep-desc">full info as JSON</span></div>
+      <div class="endpoint-line"><span class="method">GET</span><span class="endpoint">/country</span><span class="ep-desc">country name</span></div>
+      <div class="endpoint-line"><span class="method">GET</span><span class="endpoint">/country-iso</span><span class="ep-desc">ISO 3166 country code</span></div>
+      <div class="endpoint-line"><span class="method">GET</span><span class="endpoint">/city</span><span class="ep-desc">city name</span></div>
+      <div class="endpoint-line"><span class="method">GET</span><span class="endpoint">/asn</span><span class="ep-desc">ASN number</span></div>
+      <div class="endpoint-line"><span class="method">GET</span><span class="endpoint">/:ip/json</span><span class="ep-desc">lookup a different IP</span></div>
     </div>
-
     <div class="tab-content" id="tab-formats">
-      <div class="term-line">
-        <span class="term-prompt">$</span>
-        <span class="term-cmd">curl -H <span style="color:var(--amber)">"Accept: application/json"</span> ipwho.am</span>
-      </div>
-      <div class="term-line" style="margin-top:0.4rem">
-        <span class="term-prompt">$</span>
-        <span class="term-cmd">curl ipwho.am<span style="color:var(--cyan)">.json</span></span>
-        <span class="term-comment"># also works</span>
-      </div>
-      <div class="term-line" style="margin-top:0.4rem">
-        <span class="term-prompt">$</span>
-        <span class="term-cmd">curl -6 ipwho.am</span>
-        <span class="term-comment"># force IPv6</span>
-      </div>
-      <div class="term-line" style="margin-top:0.4rem">
-        <span class="term-prompt">$</span>
-        <span class="term-cmd">curl -4 ipwho.am</span>
-        <span class="term-comment"># force IPv4</span>
-      </div>
-      <div style="margin-top:1rem; font-size:0.7rem; color:var(--text-dim); border-top:1px solid var(--border); padding-top:0.75rem;">
-        <span style="color:var(--orange)">rate limit:</span> &lt; 1 req/sec for automated use &nbsp;|&nbsp;
-        <span style="color:var(--orange)">429</span> = rate limited &nbsp;|&nbsp;
-        no auth required
+      <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">curl -H <span style="color:var(--amber)">"Accept: application/json"</span> ipwho.am</span></div>
+      <div class="term-line" style="margin-top:.4rem"><span class="term-prompt">$</span><span class="term-cmd">curl -6 ipwho.am</span><span class="term-comment"># force IPv6</span></div>
+      <div class="term-line" style="margin-top:.4rem"><span class="term-prompt">$</span><span class="term-cmd">curl -4 ipwho.am</span><span class="term-comment"># force IPv4</span></div>
+      <div style="margin-top:1rem;font-size:.7rem;color:var(--text-dim);border-top:1px solid var(--border);padding-top:.75rem">
+        <span style="color:var(--orange)">rate limit:</span> &lt; 1 req/sec &nbsp;|&nbsp;<span style="color:var(--orange)">429</span> = rate limited &nbsp;|&nbsp; no auth required
       </div>
     </div>
   </div>
 
-  <!-- FAQ -->
+  <!-- PRIVACY SECTION -->
+  <div class="privacy-section">
+    <div class="privacy-title">Datenschutz &amp; Privatsphäre</div>
+    <div class="privacy-grid">
+      <div class="privacy-item">
+        <div class="privacy-item-title">Was wird gespeichert?</div>
+        <div class="privacy-item-body">
+          Wir speichern keine personenbezogenen Daten. Kein Logging von IP-Adressen, keine Cookies, keine Tracking-Pixel. 
+          Einzig ein anonymer Seitenaufruf-Zähler (via <a href="https://counterapi.dev" target="_blank">CounterAPI</a>) wird inkrementiert — ohne IP oder Nutzerdaten.
+        </div>
+      </div>
+      <div class="privacy-item">
+        <div class="privacy-item-title">Externe Dienste</div>
+        <div class="privacy-item-body">
+          Geo-Daten werden von <a href="https://ipapi.co/privacy/" target="_blank">ipapi.co</a> abgefragt. 
+          Deine IP wird dabei kurzzeitig an deren Server übertragen und unterliegt deren <a href="https://ipapi.co/privacy/" target="_blank">Datenschutzrichtlinie</a>. 
+          Fonts: Google Fonts (JetBrains Mono).
+        </div>
+      </div>
+      <div class="privacy-item">
+        <div class="privacy-item-title">Hosting &amp; Open Source</div>
+        <div class="privacy-item-body">
+          Diese Seite wird auf <a href="https://pages.github.com" target="_blank">GitHub Pages</a> gehostet. 
+          Der vollständige Quellcode ist öffentlich auf <a href="https://github.com/MarkysMarks/ipwho.am" target="_blank">GitHub</a> einsehbar. 
+          Keine serverseitige Logik, kein Backend.
+        </div>
+      </div>
+      <div class="privacy-item">
+        <div class="privacy-item-title">Deine Rechte</div>
+        <div class="privacy-item-body">
+          Da wir keinerlei personenbezogene Daten erfassen, gibt es nichts zu löschen oder anzufordern. 
+          Fragen? <a href="https://github.com/MarkysMarks/ipwho.am/issues" target="_blank">GitHub Issues</a> oder direkt im Repository.
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1rem;font-size:.65rem;color:var(--text-faint);text-align:center">
+      Vollständige Datenschutzerklärung: <a href="datenschutz.html" style="color:var(--green-dim);text-decoration:none">datenschutz.html</a>
+    </div>
+  </div>
+
   <div class="faq-section">
     <div class="faq-title">FAQ</div>
-
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">Wie erzwinge ich IPv4 oder IPv6?<span class="faq-arrow">▶</span></div>
-      <div class="faq-a">Nutze <code>curl -4 ipwho.am</code> für IPv4 oder <code>curl -6 ipwho.am</code> für IPv6. Die meisten Clients entscheiden automatisch basierend auf deiner Netzwerkkonfiguration.</div>
+      <div class="faq-a">Nutze <code>curl -4 ipwho.am</code> für IPv4 oder <code>curl -6 ipwho.am</code> für IPv6.</div>
     </div>
-
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">Kann ich JSON erzwingen?<span class="faq-arrow">▶</span></div>
-      <div class="faq-a">Ja, sende den Header <code>Accept: application/json</code> oder füge <code>.json</code> an die URL an. Beispiel: <code>curl ipwho.am/json</code></div>
+      <div class="faq-a">Ja, sende den Header <code>Accept: application/json</code> oder nutze <code>curl ipwho.am/json</code></div>
     </div>
-
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">Ist automatisierte Nutzung erlaubt?<span class="faq-arrow">▶</span></div>
-      <div class="faq-a">Ja, solange das Rate-Limit respektiert wird. Bitte auf max. <code>1 Anfrage/Minute</code> bei automatisierten Abfragen beschränken. Anfragen über dem Limit erhalten Status <code>429</code>.</div>
+      <div class="faq-a">Ja, max. <code>1 Anfrage/Minute</code> bei automatisierten Abfragen. Anfragen über dem Limit erhalten Status <code>429</code>.</div>
     </div>
-
     <div class="faq-item">
       <div class="faq-q" onclick="toggleFaq(this)">Wie prüfe ich eine fremde IP-Adresse?<span class="faq-arrow">▶</span></div>
-      <div class="faq-a">Einfach die IP an den Pfad anhängen: <code>curl ipwho.am/8.8.8.8/json</code> — gibt alle verfügbaren Informationen zur angegebenen Adresse zurück.</div>
+      <div class="faq-a">Einfach die IP anhängen: <code>curl ipwho.am/8.8.8.8/json</code></div>
     </div>
-
     <div class="faq-item">
-      <div class="faq-q" onclick="toggleFaq(this)">Woher stammen die Geodaten?<span class="faq-arrow">▶</span></div>
-      <div class="faq-a">Die Standortdaten basieren auf der <code>GeoLite2</code> Datenbank von MaxMind, ergänzt durch verschiedene ASN-Datenquellen. Geodaten sind Schätzungen und können ungenau sein.</div>
+      <div class="faq-q" onclick="toggleFaq(this)">Werden meine Daten gespeichert?<span class="faq-arrow">▶</span></div>
+      <div class="faq-a">Nein. Kein Logging, keine Cookies, keine personenbezogenen Daten. Nur ein anonymer Seitenbesuchszähler. Mehr Details unter <a href="datenschutz.html" style="color:var(--green)">Datenschutz</a>.</div>
     </div>
   </div>
 
-  <!-- FOOTER -->
   <footer style="margin-top:3rem">
-    <div style="margin-bottom:0.5rem">
-      <span>ipwho.am</span> &nbsp;—&nbsp; what is my ip? &nbsp;—&nbsp; no logs, no tracking
+    <div style="margin-bottom:.5rem">
+      <span>ipwho.am</span> &nbsp;—&nbsp; what is my ip? &nbsp;—&nbsp;
+      <a href="https://github.com/MarkysMarks/ipwho.am" target="_blank">github</a> &nbsp;·&nbsp;
+      <a href="stats.html">stats</a> &nbsp;·&nbsp;
+      <a href="datenschutz.html">datenschutz</a>
     </div>
-    <div style="color:var(--text-faint)">
-      data: maxmind geolite2 &nbsp;·&nbsp; rate limit: 1 req/min &nbsp;·&nbsp; uptime: 99.97%
-    </div>
+    <div style="color:var(--text-faint)">data: maxmind geolite2 &nbsp;·&nbsp; no logs, no tracking &nbsp;·&nbsp; MIT license</div>
   </footer>
-
-</div><!-- .wrapper -->
+</div>
 
 <script>
-const eu = new Set(['AT','BE','BG','CY','CZ','DE','DK','EE','ES','FI','FR','GR','HR','HU','IE','IT','LT','LU','LV','MT','NL','PL','PT','RO','SE','SI','SK']);
+const eu=new Set(['AT','BE','BG','CY','CZ','DE','DK','EE','ES','FI','FR','GR','HR','HU','IE','IT','LT','LU','LV','MT','NL','PL','PT','RO','SE','SI','SK']);
+function ipToDecimal(ip){return ip.split('.').reduce((a,b)=>(a<<8)+parseInt(b),0)>>>0}
+function set(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html}
+function setText(id,t){const el=document.getElementById(id);if(el)el.textContent=t}
+function flag(code){if(!code||code.length!==2)return'';return String.fromCodePoint(...[...code.toUpperCase()].map(c=>0x1F1E6+c.charCodeAt(0)-65))}
+function copyIP(){const ip=document.getElementById('ip-text').textContent;navigator.clipboard.writeText(ip).then(()=>{const b=document.getElementById('copy-btn');b.textContent='[ copied! ]';b.classList.add('copied');setTimeout(()=>{b.textContent='[ copy ]';b.classList.remove('copied')},2000)})}
+function switchTab(name,el){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+name).classList.add('active')}
+function toggleFaq(el){el.closest('.faq-item').classList.toggle('open')}
 
-function ipToDecimal(ip) {
-  return ip.split('.').reduce((a, b) => (a << 8) + parseInt(b), 0) >>> 0;
-}
-
-function set(id, html) {
-  const el = document.getElementById(id);
-  if (el) el.innerHTML = html;
-}
-
-function setText(id, text) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = text;
-}
-
-function flag(code) {
-  if (!code || code.length !== 2) return '';
-  return String.fromCodePoint(...[...code.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65));
-}
-
-function copyIP() {
-  const ip = document.getElementById('ip-text').textContent;
-  navigator.clipboard.writeText(ip).then(() => {
-    const btn = document.getElementById('copy-btn');
-    btn.textContent = '[ copied! ]';
-    btn.classList.add('copied');
-    setTimeout(() => {
-      btn.textContent = '[ copy ]';
-      btn.classList.remove('copied');
-    }, 2000);
-  });
-}
-
-function switchTab(name, el) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-}
-
-function toggleFaq(el) {
-  const item = el.closest('.faq-item');
-  item.classList.toggle('open');
-}
-
-// --- CLIENT-SIDE DATA ---
-function fillClientData() {
-  const nav = navigator;
-  set('d-ua', `<span style="word-break:break-word">${nav.userAgent}</span>`);
-  setText('d-lang', nav.language || nav.userLanguage || '—');
-  setText('d-platform', nav.platform || '—');
-  setText('d-screen', `${screen.width}×${screen.height} @ ${screen.availWidth}×${screen.availHeight}`);
-  setText('d-colordepth', screen.colorDepth + ' bit');
-  setText('d-cookies', nav.cookieEnabled ? 'enabled' : 'disabled');
-  setText('d-java', nav.javaEnabled ? nav.javaEnabled() ? 'enabled' : 'disabled' : 'N/A');
-  setText('d-online', navigator.onLine ? '✓ online' : '✗ offline');
-  document.getElementById('d-online').classList.toggle('highlight', navigator.onLine);
-  const conn = (nav.connection || nav.mozConnection || nav.webkitConnection);
-  setText('d-connection', conn ? `${conn.effectiveType || '—'} ${conn.downlink ? conn.downlink + ' Mbps' : ''}`.trim() : 'unknown');
-  setText('d-dnt', nav.doNotTrack === '1' ? 'enabled' : nav.doNotTrack === '0' ? 'disabled' : 'unset');
-  setText('d-touch', navigator.maxTouchPoints || '0');
+function fillClientData(){
+  const nav=navigator;
+  set('d-ua',`<span style="word-break:break-word">${nav.userAgent}</span>`);
+  setText('d-lang',nav.language||'—');setText('d-platform',nav.platform||'—');
+  setText('d-screen',`${screen.width}×${screen.height}`);setText('d-colordepth',screen.colorDepth+' bit');
+  setText('d-cookies',nav.cookieEnabled?'enabled':'disabled');
+  setText('d-java',nav.javaEnabled?nav.javaEnabled()?'enabled':'disabled':'N/A');
+  setText('d-online',navigator.onLine?'✓ online':'✗ offline');
+  document.getElementById('d-online').classList.toggle('highlight',navigator.onLine);
+  const conn=nav.connection||nav.mozConnection||nav.webkitConnection;
+  setText('d-connection',conn?`${conn.effectiveType||'—'} ${conn.downlink?conn.downlink+' Mbps':''}`.trim():'unknown');
+  setText('d-dnt',nav.doNotTrack==='1'?'enabled':nav.doNotTrack==='0'?'disabled':'unset');
+  setText('d-touch',navigator.maxTouchPoints||'0');
   updateTime();
 }
-
-function updateTime() {
-  const now = new Date();
-  const fmt = t => t.toLocaleTimeString('de-DE', { hour12: false });
-  const fmtFull = t => t.toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'medium' });
-  const offset = -now.getTimezoneOffset();
-  const sign = offset >= 0 ? '+' : '-';
-  const h = String(Math.floor(Math.abs(offset) / 60)).padStart(2, '0');
-  const m = String(Math.abs(offset) % 60).padStart(2, '0');
-  set('d-localtime', `<span style="color:var(--green)">${fmtFull(now)}</span>`);
-  set('d-utctime', new Date(now.getTime() + now.getTimezoneOffset() * 60000).toLocaleString('de-DE', { dateStyle: 'short', timeStyle: 'medium' }));
-  setText('d-utcoffset', `UTC${sign}${h}:${m}`);
+function updateTime(){
+  const now=new Date();
+  const fmtFull=t=>t.toLocaleString('de-DE',{dateStyle:'short',timeStyle:'medium'});
+  const offset=-now.getTimezoneOffset();const sign=offset>=0?'+':'-';
+  const h=String(Math.floor(Math.abs(offset)/60)).padStart(2,'0');const m=String(Math.abs(offset)%60).padStart(2,'0');
+  set('d-localtime',`<span style="color:var(--green)">${fmtFull(now)}</span>`);
+  set('d-utctime',new Date(now.getTime()+now.getTimezoneOffset()*60000).toLocaleString('de-DE',{dateStyle:'short',timeStyle:'medium'}));
+  setText('d-utcoffset',`UTC${sign}${h}:${m}`);
 }
-setInterval(updateTime, 1000);
+setInterval(updateTime,1000);
 
-// --- IP API ---
-async function fetchIPData() {
-  try {
-    const res = await fetch('https://ipapi.co/json/');
-    if (!res.ok) throw new Error('API error');
-    const d = await res.json();
-
-    const ip = d.ip || '—';
-    const isIPv6 = ip.includes(':');
-
-    // Hero
+async function fetchIPData(){
+  try{
+    const res=await fetch('https://ipapi.co/json/');
+    if(!res.ok)throw new Error('API error');
+    const d=await res.json();
+    const ip=d.ip||'—';const isIPv6=ip.includes(':');
     typeIP(ip);
-    set('proto', isIPv6 ? 'IPv6' : 'IPv4');
-    set('hero-country', flag(d.country_code) + ' ' + (d.country_name || '—'));
-    set('hero-org', d.org || d.asn || '—');
+    set('proto',isIPv6?'IPv6':'IPv4');
+    set('hero-country',flag(d.country_code)+' '+(d.country_name||'—'));
+    set('hero-org',d.org||d.asn||'—');
     document.getElementById('cursor').classList.remove('visible');
-
-    // Geo
-    set('d-country', flag(d.country_code) + ' ' + (d.country_name || '—'));
-    setText('d-country-code', (d.country_code || '—') + (eu.has(d.country_code) ? ' (EU ✓)' : ''));
-    setText('d-region', d.region || '—');
-    setText('d-city', d.city || '—');
-    setText('d-postal', d.postal || '—');
-    setText('d-lat', d.latitude != null ? d.latitude.toFixed(4) + '°' : '—');
-    setText('d-lon', d.longitude != null ? d.longitude.toFixed(4) + '°' : '—');
-    setText('d-tz', d.timezone || '—');
-    set('d-eu', eu.has(d.country_code) ? '<span style="color:var(--green)">true ✓</span>' : 'false');
-
-    // Network
-    set('d-ip', `<span style="color:var(--cyan)">${ip}</span>`);
-    setText('d-ipdec', isIPv6 ? 'N/A (IPv6)' : ipToDecimal(ip).toLocaleString());
-    setText('d-ipver', isIPv6 ? 'IPv6' : 'IPv4');
-    setText('d-hostname', d.hostname || 'N/A');
-    setText('d-asn', d.asn || '—');
-    setText('d-asnorg', d.org ? d.org.replace(d.asn, '').trim() : '—');
-    setText('d-isp', d.org || '—');
-
-    // Terminal
-    set('out-ip', ip);
-    set('out-country', d.country_name || '—');
-    const jsonOut = JSON.stringify({
-      ip: d.ip,
-      city: d.city,
-      region: d.region,
-      country: d.country_name,
-      country_code: d.country_code,
-      timezone: d.timezone,
-      asn: d.asn,
-      org: d.org
-    }, null, 2);
-    set('out-json', `<span style="color:var(--green-dim)">${jsonOut}</span>`);
-
-    // Glitch effect on IP
-    const ipEl = document.getElementById('ip-main');
-    setTimeout(() => { ipEl.classList.add('glitch'); }, 800);
-    setTimeout(() => { ipEl.classList.remove('glitch'); }, 950);
-
-  } catch(e) {
-    set('ip-text', 'ERR: FETCH FAILED');
-    document.getElementById('cursor').classList.remove('visible');
-    console.error(e);
-  }
+    set('d-country',flag(d.country_code)+' '+(d.country_name||'—'));
+    setText('d-country-code',(d.country_code||'—')+(eu.has(d.country_code)?' (EU ✓)':''));
+    setText('d-region',d.region||'—');setText('d-city',d.city||'—');setText('d-postal',d.postal||'—');
+    setText('d-lat',d.latitude!=null?d.latitude.toFixed(4)+'°':'—');setText('d-lon',d.longitude!=null?d.longitude.toFixed(4)+'°':'—');
+    setText('d-tz',d.timezone||'—');
+    set('d-eu',eu.has(d.country_code)?'<span style="color:var(--green)">true ✓</span>':'false');
+    set('d-ip',`<span style="color:var(--cyan)">${ip}</span>`);
+    setText('d-ipdec',isIPv6?'N/A (IPv6)':ipToDecimal(ip).toLocaleString());setText('d-ipver',isIPv6?'IPv6':'IPv4');
+    setText('d-hostname',d.hostname||'N/A');setText('d-asn',d.asn||'—');
+    setText('d-asnorg',d.org?d.org.replace(d.asn,'').trim():'—');setText('d-isp',d.org||'—');
+    set('out-ip',ip);set('out-country',d.country_name||'—');
+    const jsonOut=JSON.stringify({ip:d.ip,city:d.city,region:d.region,country:d.country_name,country_code:d.country_code,timezone:d.timezone,asn:d.asn,org:d.org},null,2);
+    set('out-json',`<span style="color:var(--green-dim)">${jsonOut}</span>`);
+    const ipEl=document.getElementById('ip-main');
+    setTimeout(()=>{ipEl.classList.add('glitch')},800);setTimeout(()=>{ipEl.classList.remove('glitch')},950);
+  }catch(e){set('ip-text','ERR: FETCH FAILED');document.getElementById('cursor').classList.remove('visible')}
+}
+function typeIP(ip){
+  const el=document.getElementById('ip-text');el.textContent='';let i=0;
+  const interval=setInterval(()=>{if(i<ip.length){el.textContent+=ip[i];i++}else{clearInterval(interval);el.classList.add('glow')}},40);
 }
 
-function typeIP(ip) {
-  const el = document.getElementById('ip-text');
-  el.textContent = '';
-  let i = 0;
-  const interval = setInterval(() => {
-    if (i < ip.length) {
-      el.textContent += ip[i];
-      i++;
-    } else {
-      clearInterval(interval);
-      el.classList.add('glow');
-    }
-  }, 40);
-}
+// Track web visit (anonymous counter)
+fetch('https://api.counterapi.dev/v1/ipwhoam/web/hit').catch(()=>{});
 
-fillClientData();
-fetchIPData();
+fillClientData();fetchIPData();
 </script>
 </body>
 </html>
