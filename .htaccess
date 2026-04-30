@@ -3,22 +3,32 @@ DirectoryIndex index.php
 
 RewriteEngine On
 
-# Skip existing files
+# ── Static files pass through unchanged ──────────────────────────────────────
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]
 
-# stats & datenschutz keep their .php extension optional
-RewriteRule ^stats/?$       stats.php  [L]
-RewriteRule ^datenschutz/?$ datenschutz.php [L]
-RewriteRule ^privacy/?$     datenschutz.php [L]
+# ── Clean URLs — internal rewrite, browser keeps the clean path ───────────────
+RewriteRule ^stats/?$       stats.php       [L,QSA]
+RewriteRule ^datenschutz/?$ datenschutz.php [L,QSA]
+RewriteRule ^privacy/?$     datenschutz.php [L,QSA]
 
-# Everything else → index.php
+# ── Redirect naked .php calls to clean URLs ───────────────────────────────────
+RewriteCond %{THE_REQUEST} ^GET\ /stats\.php
+RewriteRule ^ /stats/ [R=301,L]
+
+RewriteCond %{THE_REQUEST} ^GET\ /datenschutz\.php
+RewriteRule ^ /datenschutz/ [R=301,L]
+
+# ── Everything else → index.php (API + HTML routing) ─────────────────────────
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Security headers
+# ── Security & CORS headers ───────────────────────────────────────────────────
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
   Header always set X-Frame-Options "DENY"
   Header always set Referrer-Policy "no-referrer"
   Header always set Access-Control-Allow-Origin "*"
+  <FilesMatch "\.svg$">
+    Header set Content-Type "image/svg+xml"
+  </FilesMatch>
 </IfModule>
