@@ -17,6 +17,7 @@ require __DIR__ . '/lib/Tracker.php';
 
 DB::init($cfg['db']);
 GeoLookup::init($cfg);
+Tracker::init($cfg['ip_salt'] ?? 'fallback-salt-set-in-config');
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
