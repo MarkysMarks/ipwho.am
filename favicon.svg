@@ -2,28 +2,28 @@
   <defs>
     <style>
       @keyframes pulse-a {
-        0%,100% { r: 4; opacity: 1; }
-        50%      { r: 7; opacity: 0.5; }
+        0%,100% { r: 5; opacity: 1; }
+        50%      { r: 9; opacity: 0.5; }
       }
       @keyframes pulse-b {
-        0%,100% { r: 4; opacity: 1; }
-        50%      { r: 7; opacity: 0.5; }
+        0%,100% { r: 5; opacity: 1; }
+        50%      { r: 9; opacity: 0.5; }
       }
       @keyframes pulse-c {
-        0%,100% { r: 4; opacity: 1; }
-        50%      { r: 7; opacity: 0.5; }
+        0%,100% { r: 5; opacity: 1; }
+        50%      { r: 9; opacity: 0.5; }
       }
       @keyframes glow-a {
-        0%,100% { r: 4; opacity: 0; }
-        50%      { r: 14; opacity: 0.2; }
+        0%,100% { r: 5; opacity: 0; }
+        50%      { r: 16; opacity: 0.2; }
       }
       @keyframes glow-b {
-        0%,100% { r: 4; opacity: 0; }
-        50%      { r: 14; opacity: 0.2; }
+        0%,100% { r: 5; opacity: 0; }
+        50%      { r: 16; opacity: 0.2; }
       }
       @keyframes glow-c {
-        0%,100% { r: 4; opacity: 0; }
-        50%      { r: 14; opacity: 0.2; }
+        0%,100% { r: 5; opacity: 0; }
+        50%      { r: 16; opacity: 0.2; }
       }
       .dot-a  { animation: pulse-a 1.8s ease-in-out infinite; }
       .dot-b  { animation: pulse-b 1.8s ease-in-out infinite 0.6s; }
@@ -34,43 +34,40 @@
     </style>
   </defs>
 
-  <!-- background -->
-  <rect width="120" height="120" rx="16" fill="#060c06"/>
+  <!-- outer hex — R=54, fills nearly full 120×120 canvas -->
+  <polygon points="60,6 107,33 107,87 60,114 13,87 13,33"
+           fill="none" stroke="#00ff88" stroke-width="3"/>
 
-  <!-- outer hex -->
-  <polygon points="60,14 98,36 98,80 60,102 22,80 22,36"
-           fill="none" stroke="#00ff88" stroke-width="2.5"/>
-
-  <!-- inner hex -->
-  <polygon points="60,30 82,42 82,68 60,80 38,68 38,42"
-           fill="none" stroke="#1a3a1a" stroke-width="1"/>
+  <!-- inner hex — R=28 -->
+  <polygon points="60,32 84,46 84,74 60,88 36,74 36,46"
+           fill="none" stroke="#1a3a1a" stroke-width="1.5"/>
 
   <!-- lines: center → cyan nodes -->
-  <line x1="60" y1="58" x2="60" y2="28"  stroke="#00e5ff" stroke-width="1" opacity="0.45"/>
-  <line x1="60" y1="58" x2="88" y2="46"  stroke="#00e5ff" stroke-width="1" opacity="0.45"/>
-  <line x1="60" y1="58" x2="32" y2="70"  stroke="#00e5ff" stroke-width="1" opacity="0.45"/>
+  <line x1="60" y1="60" x2="60"  y2="10"  stroke="#00e5ff" stroke-width="1.2" opacity="0.5"/>
+  <line x1="60" y1="60" x2="103" y2="37"  stroke="#00e5ff" stroke-width="1.2" opacity="0.5"/>
+  <line x1="60" y1="60" x2="17"  y2="83"  stroke="#00e5ff" stroke-width="1.2" opacity="0.5"/>
 
   <!-- lines: center → dim nodes -->
-  <line x1="60" y1="58" x2="88" y2="70"  stroke="#1a3a1a" stroke-width="1" opacity="0.7"/>
-  <line x1="60" y1="58" x2="60" y2="86"  stroke="#1a3a1a" stroke-width="1" opacity="0.7"/>
-  <line x1="60" y1="58" x2="32" y2="46"  stroke="#1a3a1a" stroke-width="1" opacity="0.7"/>
+  <line x1="60" y1="60" x2="103" y2="83"  stroke="#1e3a1e" stroke-width="1.2" opacity="0.8"/>
+  <line x1="60" y1="60" x2="60"  y2="110" stroke="#1e3a1e" stroke-width="1.2" opacity="0.8"/>
+  <line x1="60" y1="60" x2="17"  y2="37"  stroke="#1e3a1e" stroke-width="1.2" opacity="0.8"/>
 
-  <!-- center node -->
-  <circle cx="60" cy="58" r="8" fill="#00ff88"/>
-  <circle cx="60" cy="58" r="3" fill="#060c06"/>
+  <!-- center node — donut so it works on any background -->
+  <circle cx="60" cy="60" r="11" fill="none" stroke="#00ff88" stroke-width="5"/>
+  <circle cx="60" cy="60" r="4"  fill="#00ff88"/>
 
   <!-- dim static nodes -->
-  <circle cx="92" cy="74" r="4" fill="#007a3d"/>
-  <circle cx="60" cy="90" r="4" fill="#007a3d"/>
-  <circle cx="28" cy="42" r="4" fill="#007a3d"/>
+  <circle cx="107" cy="83" r="5" fill="#007a3d"/>
+  <circle cx="60"  cy="110" r="5" fill="#007a3d"/>
+  <circle cx="17"  cy="37" r="5" fill="#007a3d"/>
 
   <!-- glow halos for pulsing nodes -->
-  <circle cx="60" cy="24" class="glow-a" fill="#00e5ff"/>
-  <circle cx="92" cy="42" class="glow-b" fill="#00e5ff"/>
-  <circle cx="28" cy="74" class="glow-c" fill="#00e5ff"/>
+  <circle cx="60"  cy="10" class="glow-a" fill="#00e5ff"/>
+  <circle cx="103" cy="37" class="glow-b" fill="#00e5ff"/>
+  <circle cx="17"  cy="83" class="glow-c" fill="#00e5ff"/>
 
   <!-- pulsing cyan nodes -->
-  <circle cx="60" cy="24" class="dot-a" fill="#00e5ff"/>
-  <circle cx="92" cy="42" class="dot-b" fill="#00e5ff"/>
-  <circle cx="28" cy="74" class="dot-c" fill="#00e5ff"/>
+  <circle cx="60"  cy="10" class="dot-a" fill="#00e5ff"/>
+  <circle cx="103" cy="37" class="dot-b" fill="#00e5ff"/>
+  <circle cx="17"  cy="83" class="dot-c" fill="#00e5ff"/>
 </svg>
