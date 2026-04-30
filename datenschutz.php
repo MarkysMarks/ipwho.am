@@ -62,8 +62,8 @@ footer a{color:var(--text-dim);text-decoration:none}footer a:hover{color:var(--g
 
 <div class="highlight-box">
   <strong>TL;DR — Kurz &amp; klar</strong>
-  Anonymisierte Zugriffsstatistiken werden in unserer eigenen MariaDB-Datenbank gespeichert (Zeitstempel, Land, Endpunkt, ob Browser oder CLI).
-  Deine vollständige IP-Adresse wird <em>gehasht</em> für Unique-Visitor-Zählung und nach 30 Tagen gelöscht.
+  Zugriffsstatistiken werden in unserer eigenen MariaDB gespeichert. Deine IP-Adresse wird dabei <strong>vor dem Speichern mit HMAC-SHA256 gehasht</strong> — sie ist in der Datenbank nicht mehr lesbar und kann nicht zurückgerechnet werden.
+  Einzige Ausnahme: der Geo-Lookup-Cache speichert die echte IP temporär (max. 7 Tage) als Cache-Key, damit nicht bei jeder Anfrage ein externer API-Call gemacht werden muss.
   Keine Werbe-Cookies, kein Fingerprinting, keine Datenweitergabe an Dritte.
 </div>
 
@@ -75,11 +75,13 @@ Kontakt über <a href="<?= $esc($github) ?>/issues" target="_blank">GitHub Issue
 <table>
   <thead><tr><th>Datenkategorie</th><th>Zweck</th><th>Speicherdauer</th><th>Drittanbieter</th></tr></thead>
   <tbody>
-    <tr><td>IP-Adresse (deine)</td><td>Anzeige auf deinem Bildschirm, Geo-Lookup</td><td>Nicht gespeichert</td><td>ipapi.co (kurzzeitig)</td></tr>
-    <tr><td>Land / Stadt (Geo)</td><td>Anonyme Statistik</td><td>90 Tage</td><td>Keiner (eigene DB)</td></tr>
-    <tr><td>Endpunkt &amp; Zeitstempel</td><td>Zugriffsstatistik</td><td>90 Tage</td><td>Keiner (eigene DB)</td></tr>
-    <tr><td>User-Agent</td><td>Browser-/CLI-Erkennung für korrekte Antwort</td><td>90 Tage</td><td>Keiner (eigene DB)</td></tr>
-    <tr><td>Geo-Cache (IP → Geo)</td><td>Reduktion von API-Anfragen</td><td>7 Tage</td><td>Keiner (eigene DB)</td></tr>
+    <tr><td>IP-Adresse (Anzeige)</td><td>Anzeige auf deinem Bildschirm</td><td>Nicht gespeichert</td><td>—</td></tr>
+    <tr><td>IP-Hash (HMAC-SHA256)</td><td>Unique-Visitor-Zählung in Statistik</td><td>90 Tage</td><td>Keiner (eigene DB)</td></tr>
+    <tr><td>IP-Adresse (Geo-Cache)</td><td>Cache-Key für Geo-Lookup (verhindert wiederholte API-Calls)</td><td>7 Tage TTL, dann automatisch gelöscht</td><td>Keiner (eigene DB)</td></tr>
+    <tr><td>Land / Stadt (Geo)</td><td>Anonyme Herkunftsstatistik</td><td>90 Tage</td><td>Keiner (eigene DB)</td></tr>
+    <tr><td>Endpunkt &amp; Zeitstempel</td><td>Zugriffsstatistik (IPs in Pfaden werden ersetzt durch <code>/{ip}</code>)</td><td>90 Tage</td><td>Keiner (eigene DB)</td></tr>
+    <tr><td>User-Agent</td><td>Browser-/CLI-Erkennung für korrekte Antwortformat</td><td>90 Tage</td><td>Keiner (eigene DB)</td></tr>
+    <tr><td>IP-Adresse (Geo-API)</td><td>Geo-Lookup bei Cache-Miss</td><td>Nicht gespeichert</td><td>ipapi.co</td></tr>
     <tr><td>Schriftarten</td><td>JetBrains Mono Darstellung</td><td>Nicht gespeichert</td><td>Google Fonts</td></tr>
   </tbody>
 </table>
