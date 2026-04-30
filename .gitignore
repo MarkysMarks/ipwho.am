@@ -3,3 +3,4 @@ config.local.php
 .env.local
 vendor/
 *.log
+config.php
