@@ -11,9 +11,7 @@ if (file_exists(__DIR__ . '/config.local.php')) {
 require __DIR__ . '/lib/DB.php';
 DB::init($cfg['db']);
 
-$dbPing = DB::ping();
-$dbOk  = $dbPing === true;
-$dbErr = $dbOk ? '' : $dbPing;
+$dbOk = DB::ping() === true;
 $hostname = $cfg['hostname'];
 $github   = $cfg['github_url'];
 ?>
@@ -23,6 +21,7 @@ $github   = $cfg['github_url'];
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ipwho.am — Traffic Stats</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -129,8 +128,7 @@ footer a:hover{color:var(--green)}
 <?php if (!$dbOk): ?>
 <div class="db-error">
   <strong>⚠ Datenbankverbindung fehlgeschlagen</strong>
-  <?= htmlspecialchars($dbErr) ?><br>
-  <small style="opacity:.7">Prüfe config.php → db.host / db.user / db.pass / db.name</small>
+  Statistiken können momentan nicht geladen werden. Bitte prüfe die DB-Konfiguration.
 </div>
 <?php endif; ?>
 
@@ -217,7 +215,7 @@ footer a:hover{color:var(--green)}
 <footer>
   <div style="margin-bottom:.4rem">
     <a href="/"><?= htmlspecialchars($hostname) ?></a> &nbsp;·&nbsp;
-    <a href="/datenschutz.php">datenschutz</a> &nbsp;·&nbsp;
+    <a href="/datenschutz/">datenschutz</a> &nbsp;·&nbsp;
     <a href="<?= htmlspecialchars($github) ?>" target="_blank">github</a>
   </div>
   <div>live-daten aus mariadb &nbsp;·&nbsp; refresh alle 60s</div>
