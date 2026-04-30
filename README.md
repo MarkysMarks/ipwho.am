@@ -129,8 +129,6 @@ ipwho.am/
 │   ├── DB.php         # PDO wrapper
 │   ├── GeoLookup.php  # IP geo with 7-day DB cache
 │   └── Tracker.php    # Request logger → DB
-├── Dockerfile
-├── docker-compose.yml
 └── .htaccess          # Apache URL rewriting
 ```
 
