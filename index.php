@@ -346,6 +346,7 @@ function serveHtml(string $ip, array $geo, array $cfg): never
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ipwho.am — What is my IP?</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="description" content="Find out your IP address, location, ASN, and more. Works with curl. Open source.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -453,8 +454,8 @@ footer a:hover{color:var(--green)}
     <span class="site-title">ipwho<span>.am</span></span>
   </div>
   <div class="top-bar-right">
-    <a href="/stats.php" class="nav-link cyan">[ 📊 stats ]</a>
-    <a href="/datenschutz.php" class="nav-link">[ 🔒 datenschutz ]</a>
+    <a href="/stats/" class="nav-link cyan">[ 📊 stats ]</a>
+    <a href="/datenschutz/" class="nav-link">[ 🔒 datenschutz ]</a>
     <a href="<?= $esc($github) ?>" target="_blank" class="nav-link">[ ⌥ github ]</a>
     <div class="status-badge">ONLINE</div>
   </div>
@@ -568,7 +569,7 @@ footer a:hover{color:var(--green)}
     <div class="pi"><div class="pi-t">Was wird gespeichert?</div><div class="pi-b">Anonymisierte Zugriffsstatistiken in einer eigenen Datenbank. Keine Weitergabe an Dritte. Kein Fingerprinting, keine Werbe-Cookies.</div></div>
     <div class="pi"><div class="pi-t">Externe Dienste</div><div class="pi-b">Geo-Lookup via <a href="https://ipapi.co/privacy/" target="_blank">ipapi.co</a>. Fonts via Google Fonts. Hosting via eigenem Server / Hoster deiner Wahl.</div></div>
     <div class="pi"><div class="pi-t">Open Source</div><div class="pi-b">Vollständiger Quellcode auf <a href="<?= $esc($github) ?>" target="_blank">GitHub</a>. Jede Zeile prüfbar. MIT Lizenz.</div></div>
-    <div class="pi"><div class="pi-t">Deine Rechte</div><div class="pi-b">Vollständige Datenschutzerklärung: <a href="/datenschutz.php">datenschutz.php</a>. Fragen via <a href="<?= $esc($github) ?>/issues" target="_blank">GitHub Issues</a>.</div></div>
+    <div class="pi"><div class="pi-t">Deine Rechte</div><div class="pi-b">Vollständige Datenschutzerklärung: <a href="/datenschutz/">Datenschutzerklärung</a>. Fragen via <a href="<?= $esc($github) ?>/issues" target="_blank">GitHub Issues</a>.</div></div>
   </div>
 </div>
 
@@ -577,14 +578,14 @@ footer a:hover{color:var(--green)}
   <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Wie erzwinge ich IPv4 oder IPv6?<span class="faq-arr">▶</span></div><div class="faq-a"><code>curl -4 <?= $esc($hostname) ?></code> für IPv4, <code>curl -6 <?= $esc($hostname) ?></code> für IPv6.</div></div>
   <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Wie bekomme ich JSON?<span class="faq-arr">▶</span></div><div class="faq-a"><code>curl <?= $esc($hostname) ?>/json</code> — oder Header <code>Accept: application/json</code> setzen.</div></div>
   <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Wie schlage ich eine fremde IP nach?<span class="faq-arr">▶</span></div><div class="faq-a"><code>curl <?= $esc($hostname) ?>/8.8.8.8/json</code></div></div>
-  <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Werden meine Daten gespeichert?<span class="faq-arr">▶</span></div><div class="faq-a">Nur anonyme Zugriffsstatistiken (Zeitstempel, Land, Endpunkt). Keine persönliche Zuordnung möglich. Mehr: <a href="/datenschutz.php" style="color:var(--green)">Datenschutzerklärung</a>.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Werden meine Daten gespeichert?<span class="faq-arr">▶</span></div><div class="faq-a">Nur anonyme Zugriffsstatistiken (Zeitstempel, Land, Endpunkt). Keine persönliche Zuordnung möglich. Mehr: <a href="/datenschutz/" style="color:var(--green)">Datenschutzerklärung</a>.</div></div>
 </div>
 
 <footer>
   <div style="margin-bottom:.4rem">
     <a href="/"><?= $esc($hostname) ?></a> &nbsp;·&nbsp;
-    <a href="/stats.php">stats</a> &nbsp;·&nbsp;
-    <a href="/datenschutz.php">datenschutz</a> &nbsp;·&nbsp;
+    <a href="/stats/">stats</a> &nbsp;·&nbsp;
+    <a href="/datenschutz/">datenschutz</a> &nbsp;·&nbsp;
     <a href="<?= $esc($github) ?>" target="_blank">github</a>
   </div>
   <div>data: maxmind geolite2 via ipapi.co &nbsp;·&nbsp; php + mariadb &nbsp;·&nbsp; MIT license</div>
