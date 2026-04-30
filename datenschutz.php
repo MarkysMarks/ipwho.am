@@ -10,6 +10,7 @@ $esc = fn($v) => htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8');
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ipwho.am — Datenschutzerklärung</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -109,7 +110,7 @@ Für Fragen oder Löschanfragen: <a href="<?= $esc($github) ?>/issues" target="_
 Jede Zeile Code — inkl. Datenbankschema und Tracking-Logik — ist öffentlich einsehbar. MIT Lizenz.</p>
 
 <footer>
-  <a href="/">ipwho.am</a> &nbsp;·&nbsp; <a href="/stats.php">stats</a> &nbsp;·&nbsp; <a href="<?= $esc($github) ?>" target="_blank">github</a>
+  <a href="/">ipwho.am</a> &nbsp;·&nbsp; <a href="/stats/">stats</a> &nbsp;·&nbsp; <a href="<?= $esc($github) ?>" target="_blank">github</a>
 </footer>
 </div>
 </body>
