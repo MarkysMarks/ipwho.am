@@ -7,8 +7,8 @@ USE ipwhoam;
 -- Every HTTP request gets logged here
 CREATE TABLE IF NOT EXISTS visits (
     id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    ip          VARCHAR(45)  NOT NULL,
-    ip_decimal  BIGINT UNSIGNED NULL,
+    ip          VARCHAR(64)  NOT NULL,  -- stores HMAC-SHA256 hash, not raw IP
+    ip_decimal  BIGINT UNSIGNED NULL,  -- always NULL (raw IP not stored)
     endpoint    VARCHAR(255) NOT NULL DEFAULT '/',
     method      VARCHAR(10)  NOT NULL DEFAULT 'GET',
     user_agent  TEXT,
