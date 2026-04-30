@@ -14,6 +14,7 @@ if (file_exists(__DIR__ . '/config.local.php')) {
 require __DIR__ . '/lib/DB.php';
 require __DIR__ . '/lib/GeoLookup.php';
 require __DIR__ . '/lib/Tracker.php';
+require __DIR__ . '/lib/ThreatCheck.php';
 
 DB::init($cfg['db']);
 GeoLookup::init($cfg);
@@ -170,6 +171,41 @@ if (count($pathParts) >= 1 && filter_var($pathParts[0], FILTER_VALIDATE_IP)) {
 $targetIp  = $lookupIp ?? $clientIp;
 $geo       = GeoLookup::lookup($targetIp);
 
+
+// /port/{port} — check if port is reachable on client IP
+if (preg_match('#^/port/(\d+)$#', $path, $m)) {
+    $port = (int)$m[1];
+    if ($port < 1 || $port > 65535) {
+        jsonResponse(['error' => 'Port must be 1–65535'], 400);
+    }
+    $targetIp  = $lookupIp ?? $clientIp;
+    $startConn = microtime(true);
+    $sock      = @fsockopen($targetIp, $port, $errno, $errstr, 2);
+    $ms        = (int)((microtime(true) - $startConn) * 1000);
+    $open      = $sock !== false;
+    if ($sock) fclose($sock);
+
+    track($clientIp, [], '/port/' . $port, $isBrowser, $isApi);
+
+    if ($isBrowser || $isApi) {
+        jsonResponse([
+            'ip'         => $targetIp,
+            'port'       => $port,
+            'reachable'  => $open,
+            'latency_ms' => $open ? $ms : null,
+            'message'    => $open ? "Port {$port} is open" : "Port {$port} is closed or filtered",
+        ]);
+    } else {
+        textResponse($open ? "open" : "closed");
+    }
+}
+
+// /asn/ → asn.php
+if (str_starts_with($path, '/asn')) {
+    header('Location: /asn/');
+    exit;
+}
+
 // ── Field-specific endpoints ──────────────────────────────────────────────
 $fieldMap = [
     '/country'     => 'country_name',
@@ -230,6 +266,7 @@ function track(string $ip, array $geo, string $path, bool $isBrowser, bool $isAp
 
 function buildFullResponse(string $ip, array $geo): array
 {
+    $threat = ThreatCheck::check($ip);
     return [
         'ip'           => $geo['ip'],
         'ip_decimal'   => $geo['ip_decimal'],
@@ -247,6 +284,11 @@ function buildFullResponse(string $ip, array $geo): array
         'asn'          => $geo['asn'],
         'org'          => $geo['org'],
         'in_eu'        => $geo['in_eu'],
+        'is_tor'       => $threat['is_tor'],
+        'is_vpn'       => $threat['is_vpn'],
+        'is_proxy'     => $threat['is_proxy'],
+        'is_datacenter'=> $threat['is_datacenter'],
+        'threat_type'  => $threat['threat_type'],
     ];
 }
 
@@ -505,6 +547,7 @@ footer a:hover{color:var(--green)}
   <div class="top-bar-right">
     <a href="/stats/" class="nav-link cyan">[ 📊 stats ]</a>
     <a href="/map/" class="nav-link cyan">[ 🗺 map ]</a>
+    <a href="/asn/" class="nav-link cyan">[ ⎇ asn ]</a>
     <a href="/datenschutz/" class="nav-link">[ 🔒 datenschutz ]</a>
     <a href="<?= $esc($github) ?>" target="_blank" class="nav-link">[ ⌥ github ]</a>
     <div class="status-badge">ONLINE</div>
@@ -571,6 +614,13 @@ footer a:hover{color:var(--green)}
       <tr><td class="key">ISP</td><td class="val"><?= $esc($geo['org'] ?? '—') ?></td></tr>
     </table>
   </div>
+  <div class="section-card" style="animation-delay:.35s">
+    <div class="card-header"><span>◈</span> REPUTATION / THREAT</div>
+    <table class="data-table" id="threat-table">
+      <tr><td class="key">checking</td><td class="val loading" id="t-status">resolving</td></tr>
+    </table>
+    </table>
+  </div>
   <div class="section-card">
     <div class="card-header"><span>◈</span> CLIENT / BROWSER</div>
     <table class="data-table">
@@ -623,6 +673,8 @@ footer a:hover{color:var(--green)}
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/org</span><span class="ep-d">organization / ISP</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/timezone</span><span class="ep-d">timezone string</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/ping</span><span class="ep-d">latency check — returns "pong" + X-Response-Time header</span></div>
+    <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/port/443</span><span class="ep-d">check if port is reachable from server to your IP</span></div>
+    <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/asn/AS15169</span><span class="ep-d">ASN lookup with prefix list</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/map/</span><span class="ep-d">interactive map mit IP-Standort</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/{ip}/json</span><span class="ep-d">look up a different IP</span></div>
   </div>
@@ -667,6 +719,51 @@ footer a:hover{color:var(--green)}
 </div>
 
 <script>
+
+// ── Threat / Reputation check ─────────────────────────────────────────────
+async function loadThreat(){
+  const table = document.getElementById('threat-table');
+  if(!table) return;
+  try {
+    const res = await fetch('/json');
+    const d   = await res.json();
+
+    const flags = [
+      d.is_tor        ? '🧅 Tor exit node'   : null,
+      d.is_vpn        ? '🔒 VPN provider'     : null,
+      d.is_proxy      ? '↔ Open proxy'        : null,
+      d.is_datacenter ? '🏢 Datacenter / Hosting' : null,
+    ].filter(Boolean);
+
+    const clean = !d.is_tor && !d.is_vpn && !d.is_proxy && !d.is_datacenter;
+
+    table.innerHTML = `
+      <tr>
+        <td class="key">tor exit</td>
+        <td class="val ${d.is_tor ? 'o' : ''}">${d.is_tor ? '✓ ja' : 'nein'}</td>
+      </tr>
+      <tr>
+        <td class="key">vpn</td>
+        <td class="val ${d.is_vpn ? 'o' : ''}">${d.is_vpn ? '✓ ja' : 'nein'}</td>
+      </tr>
+      <tr>
+        <td class="key">proxy</td>
+        <td class="val ${d.is_proxy ? 'o' : ''}">${d.is_proxy ? '✓ ja' : 'nein'}</td>
+      </tr>
+      <tr>
+        <td class="key">datacenter</td>
+        <td class="val ${d.is_datacenter ? 'a' : ''}">${d.is_datacenter ? '✓ ja' : 'nein'}</td>
+      </tr>
+      <tr>
+        <td class="key">status</td>
+        <td class="val ${clean ? 'g' : 'o'}">${clean ? '✓ clean' : '⚠ ' + (d.threat_type || 'flagged')}</td>
+      </tr>`;
+  } catch(e) {
+    const table = document.getElementById('threat-table');
+    if(table) table.innerHTML = '<tr><td class="key">status</td><td class="val" style="color:var(--text-faint)">unavailable</td></tr>';
+  }
+}
+
 // ── IP Search ─────────────────────────────────────────────────────────────
 async function doSearch(){
   const input = document.getElementById('search-input');
@@ -757,6 +854,7 @@ setTimeout(()=>{
 },1000);
 
 fill();
+loadThreat();
 </script>
 </body>
 </html>
