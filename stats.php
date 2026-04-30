@@ -49,11 +49,11 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .page-header h1 span{color:var(--text-dim);font-size:.9rem;font-weight:400}
 .page-header p{font-size:.75rem;color:var(--text-dim);line-height:1.7;max-width:620px}
 .page-header p strong{color:var(--cyan)}
-.advert-banner{background:linear-gradient(135deg,#0a1a0a,#0d200d);border:1px solid var(--green-dark);border-left:3px solid var(--green);border-radius:4px;padding:1.2rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;animation:fadeInUp .5s ease .15s both}
-.advert-text{font-size:.75rem;color:var(--text-dim);line-height:1.6}
-.advert-text strong{color:var(--green);display:block;margin-bottom:.2rem;font-size:.8rem}
-.advert-cta{background:var(--green-dark);color:var(--green);border:1px solid var(--green);font-family:inherit;font-size:.7rem;padding:8px 20px;cursor:pointer;letter-spacing:.1em;border-radius:2px;text-decoration:none;white-space:nowrap;transition:all .2s}
-.advert-cta:hover{background:var(--green);color:var(--bg)}
+.reach-card{background:linear-gradient(135deg,#0a1a0a,#0d200d);border:1px solid var(--green-dark);border-left:3px solid var(--green);border-radius:4px;padding:1.2rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;animation:fadeInUp .5s ease .15s both}
+.reach-body{font-size:.75rem;color:var(--text-dim);line-height:1.6}
+.reach-body strong{color:var(--green);display:block;margin-bottom:.2rem;font-size:.8rem}
+.reach-link{background:var(--green-dark);color:var(--green);border:1px solid var(--green);font-family:inherit;font-size:.7rem;padding:8px 20px;cursor:pointer;letter-spacing:.1em;border-radius:2px;text-decoration:none;white-space:nowrap;transition:all .2s}
+.reach-link:hover{background:var(--green);color:var(--bg)}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
 @media(max-width:700px){.kpi-grid{grid-template-columns:1fr 1fr}}
 .kpi-card{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:1.2rem 1.4rem;position:relative;overflow:hidden;animation:fadeInUp .6s ease both}
@@ -131,13 +131,13 @@ footer a:hover{color:var(--green)}
 </div>
 <?php endif; ?>
 
-<div class="advert-banner">
-  <div class="advert-text">
-    <strong>🎯 Werben auf <?= htmlspecialchars($hostname) ?></strong>
-    Technikaffine Zielgruppe: Entwickler, DevOps, Netzwerker weltweit.
-    Täglich wachsende Reichweite — keine Streuverluste, 100% Nerd-Audience.
+<div class="reach-card">
+  <div class="reach-body">
+    <strong>📡 <?= htmlspecialchars($hostname) ?> — Reichweite &amp; Kooperationen</strong>
+    Täglich wachsende Zielgruppe aus Entwicklern, DevOps-Engineers und Netzwerkern weltweit.
+    Interesse an einer Zusammenarbeit? Meld dich gerne.
   </div>
-  <a href="<?= htmlspecialchars($github) ?>/issues" target="_blank" class="advert-cta">[ Kontakt aufnehmen ]</a>
+  <a href="<?= htmlspecialchars($github) ?>/issues" target="_blank" class="reach-link">[ Kontakt aufnehmen ]</a>
 </div>
 
 <!-- KPI CARDS -->
