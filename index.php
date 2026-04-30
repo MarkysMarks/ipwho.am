@@ -418,6 +418,10 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .copy-btn{margin-left:auto;background:transparent;border:1px solid var(--border2);color:var(--green-dim);font-family:inherit;font-size:.7rem;padding:6px 14px;cursor:pointer;letter-spacing:.1em;border-radius:2px;transition:all .2s;text-transform:uppercase}
 .copy-btn:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 10px rgba(0,255,136,.2)}
 .copy-btn.copied{border-color:var(--amber);color:var(--amber)}
+.ipv4-badge{display:inline-flex;align-items:center;gap:.5rem;margin-top:.6rem;font-size:.72rem;color:var(--text-dim);animation:fadeInUp .3s ease both}
+.ipv4-badge .label{color:var(--text-faint);letter-spacing:.1em;text-transform:uppercase;font-size:.6rem}
+.ipv4-badge .addr{color:var(--cyan)}
+.ipv4-badge .note{color:var(--text-faint);font-size:.6rem}
 .sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
 @media(max-width:600px){.sections-grid{grid-template-columns:1fr}.hero{padding:1.25rem}}
 .section-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeInUp .6s ease both}
@@ -520,6 +524,13 @@ footer a:hover{color:var(--green)}
     <div class="meta-tag"><span class="label">org</span><span class="val"><?= $esc($geo['org'] ?? $geo['asn'] ?? '—') ?></span></div>
     <button class="copy-btn" id="copy-btn" onclick="copyIP('<?= $esc($geo['ip']) ?>')">[ copy ]</button>
   </div>
+  <!-- IPv4 fallback display (shown when connected via IPv6) -->
+  <div class="ipv4-badge" id="ipv4-row" style="display:none">
+    <span class="label">ipv4</span>
+    <span class="addr" id="ipv4-addr"></span>
+    <span class="note">(deine IPv4-Adresse)</span>
+  </div>
+
   <!-- IP Search -->
   <div class="ip-search-wrap">
     <div class="ip-search-label">lookup any ip or domain</div>
@@ -667,6 +678,30 @@ footer a:hover{color:var(--green)}
 </div>
 
 <script>
+// ── IPv4 lookup (only if current connection is IPv6) ─────────────────────────
+async function fetchIPv4(){
+  const currentIp = <?= json_encode($geo['ip']) ?>;
+  const isIPv6 = currentIp.includes(':');
+  if(!isIPv6) return; // already on IPv4, nothing to do
+
+  try {
+    // api4.ipify.org only accepts IPv4 connections → always returns IPv4
+    const res = await fetch('https://api4.ipify.org?format=json', {cache:'no-store'});
+    if(!res.ok) return;
+    const d = await res.json();
+    if(!d.ip) return;
+
+    const row  = document.getElementById('ipv4-row');
+    const addr = document.getElementById('ipv4-addr');
+    if(row && addr){
+      addr.textContent = d.ip;
+      row.style.display = 'inline-flex';
+    }
+  } catch(e) {
+    // No IPv4 available — silently ignore
+  }
+}
+
 // ── IP Search ─────────────────────────────────────────────────────────────
 async function doSearch(){
   const input = document.getElementById('search-input');
@@ -757,6 +792,7 @@ setTimeout(()=>{
 },1000);
 
 fill();
+fetchIPv4();
 </script>
 </body>
 </html>
