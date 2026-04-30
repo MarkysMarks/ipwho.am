@@ -382,9 +382,8 @@ function serveHtml(string $ip, array $geo, array $cfg): never
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--green:#00ff88;--green-dim:#00cc66;--green-dark:#007a3d;--green-faint:#003320;--orange:#ff6b35;--cyan:#00e5ff;--amber:#ffb300;--bg:#060c06;--bg2:#0a110a;--bg3:#0e180e;--border:#0f2a0f;--border2:#163a16;--text:#c8f0d4;--text-dim:#5a8a65;--text-faint:#2a4a30}
-body.light{--green:#007a3d;--green-dim:#006633;--green-dark:#004d26;--green-faint:#e6f5ee;--orange:#c94a1a;--cyan:#0077aa;--amber:#996600;--bg:#f0f7f3;--bg2:#ffffff;--bg3:#e8f3ed;--border:#b8ddc8;--border2:#99ccb3;--text:#0d2a1a;--text-dim:#3a6b4a;--text-faint:#8ab89a}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;overflow-x:hidden;transition:background .25s,color .25s}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);pointer-events:none;z-index:1000}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.7) 100%);pointer-events:none;z-index:999}
 .glow{text-shadow:0 0 10px var(--green),0 0 20px rgba(0,255,136,.4)}
@@ -464,8 +463,6 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .faq-item.open .faq-a{display:block}
 .faq-a code{background:var(--green-faint);color:var(--green);padding:1px 6px;border-radius:2px;font-family:inherit;font-size:.85em}
 footer{text-align:center;padding-top:2rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-faint);letter-spacing:.1em;animation:fadeInUp .6s ease .8s both;margin-top:2rem}
-.theme-toggle{background:transparent;border:1px solid var(--border2);color:var(--text-dim);font-family:inherit;font-size:.65rem;padding:2px 10px;border-radius:2px;cursor:pointer;letter-spacing:.1em;transition:all .2s}
-.theme-toggle:hover{color:var(--amber);border-color:var(--amber)}
 .ip-search-wrap{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
 .ip-search-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .ip-search-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:.85rem;padding:8px 14px;border-radius:2px;flex:1;min-width:200px;outline:none;transition:border-color .2s}
@@ -509,7 +506,6 @@ footer a:hover{color:var(--green)}
     <a href="/map/" class="nav-link cyan">[ 🗺 map ]</a>
     <a href="/datenschutz/" class="nav-link">[ 🔒 datenschutz ]</a>
     <a href="<?= $esc($github) ?>" target="_blank" class="nav-link">[ ⌥ github ]</a>
-    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">[ ☀ ]</button>
     <div class="status-badge">ONLINE</div>
   </div>
 </div>
@@ -670,26 +666,6 @@ footer a:hover{color:var(--green)}
 </div>
 
 <script>
-// ── Theme toggle ──────────────────────────────────────────────────────────
-(function(){
-  const saved = localStorage.getItem('theme');
-  if(saved === 'light') document.body.classList.add('light');
-  updateToggleLabel();
-})();
-function toggleTheme(){
-  document.body.classList.toggle('light');
-  const isLight = document.body.classList.contains('light');
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  updateToggleLabel();
-}
-function updateToggleLabel(){
-  const btn = document.getElementById('theme-toggle');
-  if(!btn) return;
-  const isLight = document.body.classList.contains('light');
-  btn.textContent = isLight ? '[ ☾ ]' : '[ ☀ ]';
-  btn.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
-}
-
 // ── IP Search ─────────────────────────────────────────────────────────────
 async function doSearch(){
   const input = document.getElementById('search-input');
