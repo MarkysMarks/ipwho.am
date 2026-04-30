@@ -17,6 +17,7 @@ require __DIR__ . '/lib/Tracker.php';
 
 DB::init($cfg['db']);
 GeoLookup::init($cfg);
+Tracker::init($cfg['ip_salt'] ?? 'fallback-salt-set-in-config');
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -111,15 +112,45 @@ if ($method !== 'GET') {
 
 // ── Route ──────────────────────────────────────────────────────────────────
 
+// /ping — health check / latency test
+if ($path === '/ping') {
+    $ms = elapsedMs($startTime);
+    if ($isBrowser) {
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>pong — ipwho.am</title>'
+           . '<link rel="icon" type="image/svg+xml" href="/favicon.svg">'
+           . '<style>body{background:#060c06;color:#00ff88;font-family:monospace;display:flex;'
+           . 'align-items:center;justify-content:center;min-height:100vh;margin:0;flex-direction:column;gap:.5rem}'
+           . 'h1{font-size:3rem;margin:0;text-shadow:0 0 20px #00ff88}p{color:#5a8a65;font-size:.85rem}'
+           . 'a{color:#00cc66;text-decoration:none}'
+           . '</style></head><body>'
+           . '<h1>PONG</h1>'
+           . '<p>response time: <span style="color:#00e5ff">' . $ms . 'ms</span></p>'
+           . '<p>server: <span style="color:#00e5ff">' . htmlspecialchars($cfg['hostname']) . '</span></p>'
+           . '<p><a href="/">← back</a></p>'
+           . '</body></html>';
+    } else {
+        header('X-Response-Time: ' . $ms . 'ms');
+        textResponse('pong');
+    }
+    exit;
+}
+
+// /map → map page
+if ($path === '/map') {
+    header('Location: /map/');
+    exit;
+}
+
 // /stats → redirect to stats page
 if ($path === '/stats') {
-    header('Location: /stats.php');
+    header('Location: /stats/');
     exit;
 }
 
 // /datenschutz → redirect to privacy page
 if ($path === '/datenschutz' || $path === '/privacy') {
-    header('Location: /datenschutz.php');
+    header('Location: /datenschutz/');
     exit;
 }
 
@@ -433,6 +464,24 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .faq-item.open .faq-a{display:block}
 .faq-a code{background:var(--green-faint);color:var(--green);padding:1px 6px;border-radius:2px;font-family:inherit;font-size:.85em}
 footer{text-align:center;padding-top:2rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-faint);letter-spacing:.1em;animation:fadeInUp .6s ease .8s both;margin-top:2rem}
+.ip-search-wrap{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.ip-search-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.ip-search-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:.85rem;padding:8px 14px;border-radius:2px;flex:1;min-width:200px;outline:none;transition:border-color .2s}
+.ip-search-input::placeholder{color:var(--text-faint)}
+.ip-search-input:focus{border-color:var(--green-dark)}
+.ip-search-btn{background:transparent;border:1px solid var(--green-dark);color:var(--green-dim);font-family:inherit;font-size:.7rem;padding:8px 16px;cursor:pointer;letter-spacing:.1em;border-radius:2px;transition:all .2s;white-space:nowrap}
+.ip-search-btn:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(0,255,136,.15)}
+.ip-search-btn:disabled{opacity:.4;cursor:not-allowed}
+.ip-search-label{font-size:.6rem;color:var(--text-faint);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem}
+.ip-search-label::before{content:'$ ';color:var(--text-faint)}
+.search-result{margin-top:.75rem;padding:.75rem 1rem;background:var(--bg3);border:1px solid var(--border2);border-radius:2px;font-size:.75rem;display:none}
+.search-result.visible{display:block;animation:fadeInUp .2s ease both}
+.search-result-ip{font-size:1.4rem;font-weight:700;color:var(--green);margin-bottom:.5rem}
+.search-result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.5rem}
+.sr-field{display:flex;flex-direction:column;gap:.15rem}
+.sr-key{font-size:.6rem;color:var(--text-faint);letter-spacing:.1em;text-transform:uppercase}
+.sr-val{color:var(--cyan);font-size:.78rem}
+.search-error{color:var(--orange);font-size:.75rem;margin-top:.5rem}
 footer a{color:var(--text-dim);text-decoration:none;transition:color .2s}
 footer a:hover{color:var(--green)}
 </style>
@@ -455,6 +504,7 @@ footer a:hover{color:var(--green)}
   </div>
   <div class="top-bar-right">
     <a href="/stats/" class="nav-link cyan">[ 📊 stats ]</a>
+    <a href="/map/" class="nav-link cyan">[ 🗺 map ]</a>
     <a href="/datenschutz/" class="nav-link">[ 🔒 datenschutz ]</a>
     <a href="<?= $esc($github) ?>" target="_blank" class="nav-link">[ ⌥ github ]</a>
     <div class="status-badge">ONLINE</div>
@@ -469,6 +519,28 @@ footer a:hover{color:var(--green)}
     <div class="meta-tag"><span class="label">country</span><span class="val"><?= $countryFlag ?> <?= $esc($geo['country_name']) ?></span></div>
     <div class="meta-tag"><span class="label">org</span><span class="val"><?= $esc($geo['org'] ?? $geo['asn'] ?? '—') ?></span></div>
     <button class="copy-btn" id="copy-btn" onclick="copyIP('<?= $esc($geo['ip']) ?>')">[ copy ]</button>
+  </div>
+  <!-- IP Search -->
+  <div class="ip-search-wrap">
+    <div class="ip-search-label">lookup any ip or domain</div>
+    <div class="ip-search-row">
+      <input class="ip-search-input" id="search-input" type="text"
+             placeholder="8.8.8.8 or 2606:4700::1 ..."
+             onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="ip-search-btn" id="search-btn" onclick="doSearch()">[ lookup → ]</button>
+    </div>
+    <div class="search-result" id="search-result">
+      <div class="search-result-ip" id="sr-ip"></div>
+      <div class="search-result-grid">
+        <div class="sr-field"><span class="sr-key">country</span><span class="sr-val" id="sr-country"></span></div>
+        <div class="sr-field"><span class="sr-key">city</span><span class="sr-val" id="sr-city"></span></div>
+        <div class="sr-field"><span class="sr-key">org / ASN</span><span class="sr-val" id="sr-org"></span></div>
+        <div class="sr-field"><span class="sr-key">timezone</span><span class="sr-val" id="sr-tz"></span></div>
+        <div class="sr-field"><span class="sr-key">hostname</span><span class="sr-val" id="sr-host"></span></div>
+        <div class="sr-field"><span class="sr-key">in EU?</span><span class="sr-val" id="sr-eu"></span></div>
+      </div>
+      <div class="search-error" id="sr-error" style="display:none"></div>
+    </div>
   </div>
 </div>
 
@@ -550,6 +622,8 @@ footer a:hover{color:var(--green)}
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/asn</span><span class="ep-d">ASN number</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/org</span><span class="ep-d">organization / ISP</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/timezone</span><span class="ep-d">timezone string</span></div>
+    <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/ping</span><span class="ep-d">latency check — returns "pong" + X-Response-Time header</span></div>
+    <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/map/</span><span class="ep-d">interactive map mit IP-Standort</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/{ip}/json</span><span class="ep-d">look up a different IP</span></div>
   </div>
   <div class="tab-content" id="tab-formats">
@@ -593,7 +667,45 @@ footer a:hover{color:var(--green)}
 </div>
 
 <script>
-// Client-side browser data (can't be known server-side)
+// ── IP Search ─────────────────────────────────────────────────────────────
+async function doSearch(){
+  const input = document.getElementById('search-input');
+  const btn   = document.getElementById('search-btn');
+  const result= document.getElementById('search-result');
+  const errEl = document.getElementById('sr-error');
+  const q = input.value.trim();
+  if(!q) return;
+
+  btn.disabled = true;
+  btn.textContent = '[ ... ]';
+  errEl.style.display = 'none';
+  result.classList.remove('visible');
+
+  try {
+    const res = await fetch('/'+encodeURIComponent(q)+'/json');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const d = await res.json();
+    if(d.error) throw new Error(d.error);
+
+    document.getElementById('sr-ip').textContent      = d.ip || '—';
+    document.getElementById('sr-country').textContent = (d.country_name||'—') + (d.country_code ? ' ('+d.country_code+')' : '');
+    document.getElementById('sr-city').textContent    = [d.city, d.region].filter(Boolean).join(', ') || '—';
+    document.getElementById('sr-org').textContent     = d.org || d.asn || '—';
+    document.getElementById('sr-tz').textContent      = d.timezone || '—';
+    document.getElementById('sr-host').textContent    = d.hostname || 'N/A';
+    document.getElementById('sr-eu').textContent      = d.in_eu ? 'true ✓' : 'false';
+    result.classList.add('visible');
+  } catch(e) {
+    errEl.textContent = '✗ ' + (e.message || 'Lookup fehlgeschlagen');
+    errEl.style.display = 'block';
+    result.classList.add('visible');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '[ lookup → ]';
+}
+
+// ── Client-side browser data ──────────────────────────────────────────────
 function fill(){
   const s=id=>document.getElementById(id);
   const nav=navigator;
@@ -639,11 +751,9 @@ function tab(name,el){
   el.classList.add('active');document.getElementById('tab-'+name).classList.add('active');
 }
 
-// Subtle glitch on IP display
 setTimeout(()=>{
   const d=document.getElementById('ip-display');
-  d.classList.add('glitch-anim');
-  setTimeout(()=>d.classList.remove('glitch-anim'),200);
+  if(d){d.classList.add('glitch-anim');setTimeout(()=>d.classList.remove('glitch-anim'),200);}
 },1000);
 
 fill();
