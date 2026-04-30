@@ -1,29 +1,35 @@
 <?php
-// ── ipwho.am — Konfiguration ───────────────────────────────────────────────
-// Trage hier deine Datenbankzugangsdaten ein. Fertig.
+// ── ipwho.am configuration ─────────────────────────────────────────────────
+// Copy this file to config.local.php and override values there for production.
+// config.local.php is in .gitignore and never committed.
 
 return [
-
     'db' => [
-        'host'    => 'localhost',          // DB-Host, fast immer localhost
-        'port'    => 3306,
-        'name'    => 'ipwhoam',            // Datenbankname
-        'user'    => 'ipwhoam',            // DB-Benutzername
-        'pass'    => 'DEIN_PASSWORT_HIER', // DB-Passwort
+        'host'    => getenv('DB_HOST')     ?: 'db',
+        'port'    => getenv('DB_PORT')     ?: 3306,
+        'name'    => getenv('DB_NAME')     ?: 'ipwhoam',
+        'user'    => getenv('DB_USER')     ?: 'ipwhoam',
+        'pass'    => getenv('DB_PASS')     ?: 'changeme',
         'charset' => 'utf8mb4',
     ],
 
-    // Wie lange Geo-Lookups in der DB gecacht werden (Sekunden)
-    'geo_cache_ttl' => 86400 * 7, // 7 Tage
+    // How long to cache geo lookups in DB (seconds)
+    'geo_cache_ttl' => 86400 * 7, // 7 days
 
-    // Deine Domain (wird in HTML/JSON-Antworten genutzt)
-    'hostname' => 'ipwho.am',
+    // Rate-limit: max requests per IP per minute (0 = disabled)
+    'rate_limit' => 60,
 
-    // GitHub Repository URL
+    // The canonical hostname (used in HTML / JSON responses)
+    'hostname' => getenv('APP_HOST') ?: 'ipwho.am',
+
+    // GitHub repository URL
     'github_url' => 'https://github.com/MarkysMarks/ipwho.am',
 
-    // Geo-API (ipapi.co — kostenlos bis 30k Anfragen/Monat, kein Key nötig)
-    'geo_api_url'     => 'https://ipapi.co/{ip}/json/',
-    'geo_api_timeout' => 4,
+    // Salt für IP-Hashing in der visits-Tabelle
+    // Einmalig setzen, danach NIE mehr ändern — sonst stimmen alte Hashes nicht mehr
+    'ip_salt' => 'CHANGE_THIS_TO_A_LONG_RANDOM_STRING',
 
+    // Geo API backend — ipapi.co (free: 30k/month, no key needed)
+    'geo_api_url' => 'https://ipapi.co/{ip}/json/',
+    'geo_api_timeout' => 3, // seconds
 ];
