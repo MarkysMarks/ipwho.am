@@ -7,8 +7,8 @@ USE ipwhoam;
 -- Every HTTP request gets logged here
 CREATE TABLE IF NOT EXISTS visits (
     id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    ip          VARCHAR(45)  NOT NULL,
-    ip_decimal  BIGINT UNSIGNED NULL,
+    ip          VARCHAR(64)  NOT NULL,  -- stores HMAC-SHA256 hash, not raw IP
+    ip_decimal  BIGINT UNSIGNED NULL,  -- always NULL (raw IP not stored)
     endpoint    VARCHAR(255) NOT NULL DEFAULT '/',
     method      VARCHAR(10)  NOT NULL DEFAULT 'GET',
     user_agent  TEXT,
@@ -52,4 +52,22 @@ CREATE TABLE IF NOT EXISTS daily_stats (
     cli_hits        INT UNSIGNED NOT NULL DEFAULT 0,
     unique_ips      INT UNSIGNED NOT NULL DEFAULT 0,
     updated_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Reputation / Threat cache (Tor exits, VPN, Proxy detection)
+CREATE TABLE IF NOT EXISTS reputation_cache (
+    cache_key   VARCHAR(100) PRIMARY KEY,
+    data        MEDIUMTEXT   NOT NULL,
+    expires_at  DATETIME     NOT NULL,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_expires (expires_at)
+) ENGINE=InnoDB;
+
+-- ASN info + prefix cache (24h TTL)
+CREATE TABLE IF NOT EXISTS asn_cache (
+    asn         INT UNSIGNED PRIMARY KEY,
+    data        MEDIUMTEXT   NOT NULL,
+    expires_at  DATETIME     NOT NULL,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_expires (expires_at)
 ) ENGINE=InnoDB;
