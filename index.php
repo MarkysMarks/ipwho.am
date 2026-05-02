@@ -200,7 +200,6 @@ if (preg_match('#^/port/(\d+)$#', $path, $m)) {
     }
 }
 
-}
 
 // ── Field-specific endpoints ──────────────────────────────────────────────
 $fieldMap = [
