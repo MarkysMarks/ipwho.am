@@ -504,7 +504,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 footer{text-align:center;padding-top:2rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-faint);letter-spacing:.1em;animation:fadeInUp .6s ease .8s both;margin-top:2rem}
 .ipv6-sub{font-size:1.1rem;font-weight:500;color:var(--green-dim);letter-spacing:.03em;margin-top:.3rem;opacity:.75;display:none}
 .ipv6-sub .ipv6-label{font-size:.55rem;color:var(--text-faint);letter-spacing:.15em;text-transform:uppercase;vertical-align:middle;margin-right:.4rem}
-.mini-map-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeInUp .6s ease .25s both;grid-column:1/-1}
+.mini-map-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeInUp .6s ease .25s both;grid-column:1}
 #mini-map{height:200px;width:100%;z-index:1}
 .mini-map-card .card-header{display:flex;align-items:center;justify-content:space-between}
 .mini-map-card .card-header a{font-size:.6rem;color:var(--text-faint);text-decoration:none;letter-spacing:.1em;transition:color .2s}
@@ -613,6 +613,17 @@ footer a:hover{color:var(--green)}
       <tr><td class="key">timezone</td><td class="val"><?= $esc($geo['timezone'] ?? '—') ?></td></tr>
       <tr><td class="key">in EU?</td><td class="val <?= $geo['in_eu'] ? 'g' : '' ?>"><?= $isEu ?></td></tr>
     </table>
+  </div>
+  <div class="mini-map-card">
+    <div class="card-header">
+      <span>◈ STANDORT</span>
+      <?php if ($geo['latitude']): ?><a href="/map/">Vollbild →</a><?php endif; ?>
+    </div>
+    <?php if ($geo['latitude'] && $geo['longitude']): ?>
+    <div id="mini-map"></div>
+    <?php else: ?>
+    <div class="mini-map-no-geo">Kein Geo-Standort verfügbar.</div>
+    <?php endif; ?>
   </div>
   <div class="section-card">
     <div class="card-header"><span>◈</span> NETWORK / ASN</div>
