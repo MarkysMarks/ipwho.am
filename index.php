@@ -659,6 +659,21 @@ footer a:hover{color:var(--green)}
   </div>
 </div>
 
+<!-- Mini Map -->
+<div class="mini-map-card">
+  <div class="card-header">
+    <span><span style="margin-right:.4rem">◈</span> STANDORT</span>
+    <?php if ($geo['latitude']): ?>
+    <a href="/map/">Vollbild →</a>
+    <?php endif; ?>
+  </div>
+  <?php if ($geo['latitude'] && $geo['longitude']): ?>
+  <div id="mini-map"></div>
+  <?php else: ?>
+  <div class="mini-map-no-geo">Kein Geo-Standort verfügbar für diese IP.</div>
+  <?php endif; ?>
+</div>
+
 <div class="terminal-section">
   <div class="term-header"><span>◈</span> API &amp; USAGE</div>
   <div class="term-tabs">
