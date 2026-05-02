@@ -501,6 +501,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .faq-item.open .faq-a{display:block}
 .faq-a code{background:var(--green-faint);color:var(--green);padding:1px 6px;border-radius:2px;font-family:inherit;font-size:.85em}
 footer{text-align:center;padding-top:2rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-faint);letter-spacing:.1em;animation:fadeInUp .6s ease .8s both;margin-top:2rem}
+.ipv6-sub{font-size:1.1rem;font-weight:500;color:var(--green-dim);letter-spacing:.03em;margin-top:.3rem;opacity:.75;display:none}
+.ipv6-sub .ipv6-label{font-size:.55rem;color:var(--text-faint);letter-spacing:.15em;text-transform:uppercase;vertical-align:middle;margin-right:.4rem}
 .ip-search-wrap{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
 .ip-search-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .ip-search-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:.85rem;padding:8px 14px;border-radius:2px;flex:1;min-width:200px;outline:none;transition:border-color .2s}
@@ -551,6 +553,7 @@ footer a:hover{color:var(--green)}
 <div class="hero">
   <div class="hero-label">curl <?= $esc($hostname) ?></div>
   <div class="ip-display glow" id="ip-display"><?= $esc($geo['ip']) ?></div>
+  <div class="ipv6-sub" id="ipv6-sub"><span class="ipv6-label">IPv6</span><span id="ipv6-addr"></span></div>
   <div class="hero-meta">
     <div class="meta-tag"><span class="label">protocol</span><span class="val"><?= $esc($ipVersion) ?></span></div>
     <div class="meta-tag"><span class="label">country</span><span class="val"><?= $countryFlag ?> <?= $esc($geo['country_name']) ?></span></div>
@@ -757,6 +760,22 @@ async function loadThreat(){
   }
 }
 
+// ── IPv6 display (fetched client-side via api6.ipify.org) ─────────────────
+async function fetchIPv6(){
+  try {
+    const res = await fetch('https://api6.ipify.org?format=json', {cache:'no-store'});
+    if (!res.ok) return;
+    const d = await res.json();
+    if (!d.ip || !d.ip.includes(':')) return; // must be a real IPv6
+    const sub  = document.getElementById('ipv6-sub');
+    const addr = document.getElementById('ipv6-addr');
+    if (sub && addr) {
+      addr.textContent = d.ip;
+      sub.style.display = 'block';
+    }
+  } catch(e) { /* no IPv6 available */ }
+}
+
 // ── IP Search ─────────────────────────────────────────────────────────────
 async function doSearch(){
   const input = document.getElementById('search-input');
@@ -848,6 +867,7 @@ setTimeout(()=>{
 
 fill();
 loadThreat();
+fetchIPv6();
 </script>
 </body>
 </html>
