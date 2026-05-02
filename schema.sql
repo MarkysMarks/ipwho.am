@@ -63,11 +63,3 @@ CREATE TABLE IF NOT EXISTS reputation_cache (
     INDEX idx_expires (expires_at)
 ) ENGINE=InnoDB;
 
--- ASN info + prefix cache (24h TTL)
-CREATE TABLE IF NOT EXISTS asn_cache (
-    asn         INT UNSIGNED PRIMARY KEY,
-    data        MEDIUMTEXT   NOT NULL,
-    expires_at  DATETIME     NOT NULL,
-    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_expires (expires_at)
-) ENGINE=InnoDB;
