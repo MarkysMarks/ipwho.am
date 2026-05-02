@@ -12,8 +12,6 @@ RewriteRule ^stats/?$       stats.php       [L,QSA]
 RewriteRule ^datenschutz/?$ datenschutz.php [L,QSA]
 RewriteRule ^privacy/?$     datenschutz.php [L,QSA]
 RewriteRule ^map/?$         map.php         [L,QSA]
-RewriteRule ^asn/?$         asn.php         [L,QSA]
-RewriteRule ^asn/(.+)$      asn.php         [L,QSA]
 
 # ── Redirect naked .php calls to clean URLs ───────────────────────────────────
 RewriteCond %{THE_REQUEST} ^GET\ /stats\.php
@@ -25,8 +23,6 @@ RewriteRule ^ /datenschutz/ [R=301,L]
 RewriteCond %{THE_REQUEST} ^GET\ /map\.php
 RewriteRule ^ /map/ [R=301,L]
 
-RewriteCond %{THE_REQUEST} ^GET\ /asn\.php
-RewriteRule ^ /asn/ [R=301,L]
 
 # ── Everything else → index.php (API + HTML routing) ─────────────────────────
 RewriteRule ^(.*)$ index.php [QSA,L]
