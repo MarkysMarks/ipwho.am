@@ -417,6 +417,7 @@ function serveHtml(string $ip, array $geo, array $cfg): never
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="description" content="Find out your IP address, location, ASN, and more. Works with curl. Open source.">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -504,7 +505,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 footer{text-align:center;padding-top:2rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-faint);letter-spacing:.1em;animation:fadeInUp .6s ease .8s both;margin-top:2rem}
 .ipv6-sub{font-size:1.1rem;font-weight:500;color:var(--green-dim);letter-spacing:.03em;margin-top:.3rem;opacity:.75;display:none}
 .ipv6-sub .ipv6-label{font-size:.55rem;color:var(--text-faint);letter-spacing:.15em;text-transform:uppercase;vertical-align:middle;margin-right:.4rem}
-.mini-map-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeInUp .6s ease .25s both;grid-column:1}
+.mini-map-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeInUp .6s ease .25s both}
 #mini-map{height:200px;width:100%;z-index:1}
 .mini-map-card .card-header{display:flex;align-items:center;justify-content:space-between}
 .mini-map-card .card-header a{font-size:.6rem;color:var(--text-faint);text-decoration:none;letter-spacing:.1em;transition:color .2s}
@@ -952,7 +953,6 @@ loadThreat();
 fetchIPv6();
 initMiniMap();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </body>
 </html>
 <?php
