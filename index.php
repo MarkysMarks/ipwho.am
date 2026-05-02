@@ -200,10 +200,6 @@ if (preg_match('#^/port/(\d+)$#', $path, $m)) {
     }
 }
 
-// /asn/ → asn.php
-if (str_starts_with($path, '/asn')) {
-    header('Location: /asn/');
-    exit;
 }
 
 // ── Field-specific endpoints ──────────────────────────────────────────────
@@ -547,7 +543,6 @@ footer a:hover{color:var(--green)}
   <div class="top-bar-right">
     <a href="/stats/" class="nav-link cyan">[ 📊 stats ]</a>
     <a href="/map/" class="nav-link cyan">[ 🗺 map ]</a>
-    <a href="/asn/" class="nav-link cyan">[ ⎇ asn ]</a>
     <a href="/datenschutz/" class="nav-link">[ 🔒 datenschutz ]</a>
     <a href="<?= $esc($github) ?>" target="_blank" class="nav-link">[ ⌥ github ]</a>
     <div class="status-badge">ONLINE</div>
@@ -674,7 +669,6 @@ footer a:hover{color:var(--green)}
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/timezone</span><span class="ep-d">timezone string</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/ping</span><span class="ep-d">latency check — returns "pong" + X-Response-Time header</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/port/443</span><span class="ep-d">check if port is reachable from server to your IP</span></div>
-    <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/asn/AS15169</span><span class="ep-d">ASN lookup with prefix list</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/map/</span><span class="ep-d">interactive map mit IP-Standort</span></div>
     <div class="ep"><span class="ep-m">GET</span><span class="ep-p">/{ip}/json</span><span class="ep-d">look up a different IP</span></div>
   </div>
