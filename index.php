@@ -416,6 +416,7 @@ function serveHtml(string $ip, array $geo, array $cfg): never
 <title>ipwho.am — What is my IP?</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <meta name="description" content="Find out your IP address, location, ASN, and more. Works with curl. Open source.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -503,6 +504,20 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 footer{text-align:center;padding-top:2rem;border-top:1px solid var(--border);font-size:.65rem;color:var(--text-faint);letter-spacing:.1em;animation:fadeInUp .6s ease .8s both;margin-top:2rem}
 .ipv6-sub{font-size:1.1rem;font-weight:500;color:var(--green-dim);letter-spacing:.03em;margin-top:.3rem;opacity:.75;display:none}
 .ipv6-sub .ipv6-label{font-size:.55rem;color:var(--text-faint);letter-spacing:.15em;text-transform:uppercase;vertical-align:middle;margin-right:.4rem}
+.mini-map-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;animation:fadeInUp .6s ease .25s both;grid-column:1/-1}
+#mini-map{height:200px;width:100%;z-index:1}
+.mini-map-card .card-header{display:flex;align-items:center;justify-content:space-between}
+.mini-map-card .card-header a{font-size:.6rem;color:var(--text-faint);text-decoration:none;letter-spacing:.1em;transition:color .2s}
+.mini-map-card .card-header a:hover{color:var(--green)}
+.mini-map-no-geo{padding:1.5rem;text-align:center;font-size:.72rem;color:var(--text-faint)}
+.leaflet-popup-content-wrapper{background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.72rem;box-shadow:none}
+.leaflet-popup-tip{background:var(--bg2)}
+.leaflet-popup-content{margin:.6rem .9rem;line-height:1.7}
+.leaflet-popup-content strong{color:var(--green)}
+.leaflet-control-zoom a{background:var(--bg2)!important;color:var(--text)!important;border-color:var(--border2)!important}
+.leaflet-control-zoom a:hover{background:var(--bg3)!important}
+.leaflet-control-attribution{background:rgba(6,12,6,.8)!important;color:var(--text-faint)!important;font-size:.5rem!important}
+.leaflet-control-attribution a{color:var(--text-dim)!important}
 .ip-search-wrap{margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
 .ip-search-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
 .ip-search-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:inherit;font-size:.85rem;padding:8px 14px;border-radius:2px;flex:1;min-width:200px;outline:none;transition:border-color .2s}
@@ -760,6 +775,47 @@ async function loadThreat(){
   }
 }
 
+
+// ── Mini Map ──────────────────────────────────────────────────────────────
+function initMiniMap(){
+  const el = document.getElementById('mini-map');
+  if(!el) return;
+
+  const lat  = <?= json_encode($geo['latitude']  !== null ? (float)$geo['latitude']  : null) ?>;
+  const lon  = <?= json_encode($geo['longitude'] !== null ? (float)$geo['longitude'] : null) ?>;
+  const city = <?= json_encode($geo['city']         ?? '') ?>;
+  const ip   = <?= json_encode($geo['ip']           ?? '') ?>;
+  const cc   = <?= json_encode($geo['country_name'] ?? '') ?>;
+
+  if(!lat || !lon) return;
+
+  const map = L.map('mini-map', {
+    zoomControl: true,
+    scrollWheelZoom: false,
+    dragging: true,
+    doubleClickZoom: true,
+    attributionControl: true,
+  }).setView([lat, lon], 9);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 20
+  }).addTo(map);
+
+  const markerHtml = '<div style="width:14px;height:14px;background:#00ff88;border:2px solid #060c06;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 2px #00ff88,0 0 10px rgba(0,255,136,.5)"></div>';
+  const icon = L.divIcon({className:'', html:markerHtml, iconSize:[14,14], iconAnchor:[7,14]});
+
+  L.marker([lat, lon], {icon})
+    .addTo(map)
+    .bindPopup('<strong>'+ip+'</strong><br>'+(city ? city+(cc ? ', '+cc : '')+'<br>' : '')+'<span style="color:var(--text-dim);font-size:.65rem">⚠ Schätzung, nicht exakt</span>',
+               {closeButton:false, offset:[0,-8]})
+    .openPopup();
+
+  // Accuracy circle
+  L.circle([lat, lon], {radius:20000, color:'#00ff88', fillColor:'#00ff88', fillOpacity:.04, weight:1, dashArray:'3 4'}).addTo(map);
+}
+
 // ── IPv6 display (fetched client-side via api6.ipify.org) ─────────────────
 async function fetchIPv6(){
   try {
@@ -868,7 +924,9 @@ setTimeout(()=>{
 fill();
 loadThreat();
 fetchIPv6();
+initMiniMap();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </body>
 </html>
 <?php
