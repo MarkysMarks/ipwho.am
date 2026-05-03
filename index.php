@@ -6,11 +6,6 @@ $startTime = microtime(true);
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────
 $cfg = require __DIR__ . '/config.php';
-if (file_exists(__DIR__ . '/config.local.php')) {
-    $local = require __DIR__ . '/config.local.php';
-    $cfg   = array_replace_recursive($cfg, $local);
-}
-
 require __DIR__ . '/lib/DB.php';
 require __DIR__ . '/lib/GeoLookup.php';
 require __DIR__ . '/lib/Tracker.php';
